@@ -1,7 +1,7 @@
 # FinalGameChallenge
 Projeto final da disciplina de HTML5 Canvas e Games do 3° período
 
-> 🔧 *Este projeto ainda está em fase de planejamento. As ideias a seguir representam a proposta inicial e estão sujeitas a mudanças conforme o desenvolvimento avança.*
+> 🔧 *Este projeto ainda está em fase de desenvolvimento. As ideias a seguir representam a proposta inicial e estão sujeitas a mudanças conforme o desenvolvimento avança.*
 > Entrega 15/06/2025 - Domingo
 
 ## 🎮 Ideias e Funcionalidades Planejadas
