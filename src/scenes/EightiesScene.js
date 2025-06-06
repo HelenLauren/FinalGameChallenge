@@ -1,6 +1,6 @@
-export default class GameScene extends Phaser.Scene {
+export default class EightiesScene extends Phaser.Scene {
   constructor() {
-    super('GameScene');
+    super('EightiesScene');
 
     this.tileSize = 4;
     this.cols = 512;
@@ -18,7 +18,7 @@ export default class GameScene extends Phaser.Scene {
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
-        const color = Phaser.Math.Between(0, 1) === 0 ? 0x018600 : 0x018e00;
+        const color = Phaser.Math.Between(0, 1) === 0 ? 0xebfaf9 : 0xdcedf7;
         graphics.fillStyle(color, 1);
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
@@ -131,7 +131,7 @@ export default class GameScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[2] = true;
+    progresso[4] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
     const btnNext = this.add.text(0, -20, 'Próxima Fase', {
@@ -143,7 +143,7 @@ export default class GameScene extends Phaser.Scene {
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
-      this.scene.start('IceScene'); //prox fase -----------------
+      this.scene.start('MedievalScene'); //prox fase --------------------
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {

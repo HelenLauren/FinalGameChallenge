@@ -8,9 +8,14 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   create() {
+    // Garantir progresso inicial
+    if (!localStorage.getItem('progressoFases')) {
+      localStorage.setItem('progressoFases', JSON.stringify({ 1: true }));
+    }
+
     const centerX = this.cameras.main.width / 2;
     const centerY = this.cameras.main.height / 2;
-    this.createPortalBackground();
+
     this.package = this.add.image(centerX, centerY, 'package').setOrigin(0.5);
     this.createMainMenu(centerX);
     this.createSobreSection(centerX, centerY);
@@ -19,58 +24,39 @@ export default class MenuScene extends Phaser.Scene {
     this.showMenu();
   }
 
-  createPortalBackground() {
-    const centerX = 400;
-    const centerY = 300;
-    this.portalGraphics = this.add.graphics();
-    this.orbiters = [];
+  createMainMenu(centerX) {
+    const centerY = this.cameras.main.height / 2;
+    this.menuContainer = this.add.container(centerX, centerY - 80);
 
-    const orbiterCount = 6;
-    const radius = 70;
-
-    for (let i = 0; i < orbiterCount; i++) {
-      const angle = Phaser.Math.DegToRad((360 / orbiterCount) * i);
-      const orbiter = this.add.circle(
-        centerX + radius * Math.cos(angle),
-        centerY + radius * Math.sin(angle),
-        10,
-        0x3399ff,
-        0.8
-      );
-      this.orbiters.push({ sprite: orbiter, angle });
-    }
-
-    this.portalCenter = { x: centerX, y: centerY };
-  }
-
-  createMainMenu() {
-    this.menuContainer = this.add.container(550, 100);
-
-    const title = this.add.text(0, 0, 'Jogo sem nome por enquanto', {
+    const title = this.add.text(0, -120, 'Jogo sem nome por enquanto', {
       fontSize: '40px',
+      fontFamily: 'Arial',
       color: '#00bfff',
       fontStyle: 'bold',
+      stroke: '#000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000', blur: 4, fill: true }
     }).setOrigin(0.5);
 
-    const btnJogar = this.createMenuButton('Jogar (Fase 1)', 60, () => {
+    const btnJogar = this.createMenuButton('Jogar (Fase 1)', -40, () => {
       this.scene.start('GameScene');
     });
 
-    const btnSelecionarFase = this.createMenuButton('Selecionar Fase', 120, () => {
+    const btnSelecionarFase = this.createMenuButton('Selecionar Fase', 20, () => {
       this.showSelecionarFaseSection();
     });
 
-    const btnComoJogar = this.createMenuButton('Como Jogar', 180, () => {
+    const btnComoJogar = this.createMenuButton('Como Jogar', 80, () => {
       this.showComoJogarSection();
     });
 
-    const btnSobre = this.createMenuButton('Sobre', 240, () => {
+    const btnSobre = this.createMenuButton('Sobre', 140, () => {
       this.showSobreSection();
     });
 
-    const btnResetar = this.createMenuButton('Resetar Progresso', 300, () => {
+    const btnResetar = this.createMenuButton('Resetar Progresso', 200, () => {
       localStorage.removeItem('progressoFases');
-      this.scene.restart(); // reinicia o menu
+      this.scene.restart();
     });
 
     this.menuContainer.add([title, btnJogar, btnSelecionarFase, btnComoJogar, btnSobre, btnResetar]);
@@ -79,27 +65,22 @@ export default class MenuScene extends Phaser.Scene {
   createMenuButton(text, y, callback) {
     const btn = this.add.text(0, y, text, {
       fontSize: '28px',
+      fontFamily: 'Verdana',
       color: '#ffffff',
       backgroundColor: '#0077ff',
-      padding: { x: 20, y: 10 },
+      padding: { x: 30, y: 10 },
       align: 'center',
     }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
     btn.on('pointerdown', callback);
-
-    btn.on('pointerover', () => {
-      btn.setStyle({ backgroundColor: '#005fa3' });
-    });
-
-    btn.on('pointerout', () => {
-      btn.setStyle({ backgroundColor: '#0077ff' });
-    });
+    btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#005fa3' }));
+    btn.on('pointerout', () => btn.setStyle({ backgroundColor: '#0077ff' }));
 
     return btn;
   }
 
-  createSobreSection() {
-    this.sobreContainer = this.add.container(400, 300).setVisible(false);
+  createSobreSection(centerX, centerY) {
+    this.sobreContainer = this.add.container(centerX, centerY);
 
     const bg = this.add.rectangle(0, 0, 600, 400, 0x000000, 0.8);
     const title = this.add.text(0, -170, 'Sobre', {
@@ -132,8 +113,8 @@ Participantes:
     this.sobreContainer.add([bg, title, text, btnVoltar]);
   }
 
-  createComoJogarSection() {
-    this.comoJogarContainer = this.add.container(400, 300).setVisible(false);
+  createComoJogarSection(centerX, centerY) {
+    this.comoJogarContainer = this.add.container(centerX, centerY);
 
     const bg = this.add.rectangle(0, 0, 600, 400, 0x000000, 0.8);
     const title = this.add.text(0, -170, 'Como Jogar', {
@@ -164,60 +145,61 @@ Participantes:
     this.comoJogarContainer.add([bg, title, text, btnVoltar]);
   }
 
-  createSelecionarFaseSection() {
-    this.selecionarFaseContainer = this.add.container(400, 300).setVisible(false);
+  createSelecionarFaseSection(centerX, centerY) {
+    this.selecionarFaseContainer = this.add.container(centerX, centerY);
 
-    const bg = this.add.rectangle(0, 0, 600, 400, 0x000000, 0.8);
+    const bg = this.add.rectangle(0, 0, 640, 400, 0x000000, 0.9).setOrigin(0.5);
+    this.selecionarFaseContainer.add(bg);
 
     const title = this.add.text(0, -170, 'Selecionar Fase', {
       fontSize: '32px',
       color: '#00ffff',
       fontStyle: 'bold',
     }).setOrigin(0.5);
+    this.selecionarFaseContainer.add(title);
 
-    // Fases disponíveis
     this.fases = [
-      { nome: 'Fase 1', key: 'GameScene', desbloqueada: true },
-      { nome: 'Fase 2', key: 'IceScene', desbloqueada: false },
-      { nome: 'Fase 3', key: 'BrazilScene', desbloqueada: false },
+      { nome: 'Fase 1', key: 'GameScene' },
+      { nome: 'Fase 2', key: 'IceScene' },
+      { nome: 'Fase 3', key: 'EightiesScene' },
+      { nome: 'Fase 4', key: 'MedievalScene' },
+      { nome: 'Fase 5', key: 'DinoScene' },
+      { nome: 'Fase 6', key: 'FutureScene' }
     ];
-
-    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || { 1: true };
-    this.fases.forEach((fase, idx) => {
-      fase.desbloqueada = !!progresso[idx + 1];
-    });
 
     this.faseButtons = [];
 
+    const colCount = 3;
+    const btnWidth = 170;
+    const btnHeight = 50;
+    const gapX = 30;//espaçamentos
+    const gapY = 20;
+
     this.fases.forEach((fase, idx) => {
-      const y = -70 + idx * 60;
-      const btn = this.add.text(0, y, fase.nome, {
-        fontSize: '28px',
-        color: fase.desbloqueada ? '#00ff00' : '#777777',
-        backgroundColor: fase.desbloqueada ? '#005500' : '#222222',
+      const col = idx % colCount;
+      const row = Math.floor(idx / colCount);
+      const startX = -((colCount - 1) * (btnWidth + gapX)) / 2;
+      const x = startX + col * (btnWidth + gapX);
+      const y = -70 + row * (btnHeight + gapY);
+
+      const btn = this.add.text(x, y, fase.nome, {
+        fontSize: '24px',
+        color: '#cccccc',
+        backgroundColor: '#555555',
         padding: { x: 20, y: 10 },
         align: 'center',
+        fixedWidth: btnWidth,
+        fixedHeight: btnHeight,
       }).setOrigin(0.5);
-
-      if (fase.desbloqueada) {
-        btn.setInteractive({ useHandCursor: true });
-        btn.on('pointerdown', () => {
-          this.scene.start(fase.key);
-        });
-
-        btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#007700' }));
-        btn.on('pointerout', () => btn.setStyle({ backgroundColor: '#005500' }));
-      }
 
       this.selecionarFaseContainer.add(btn);
       this.faseButtons.push(btn);
     });
 
-    const btnVoltar = this.createMenuButton('Voltar', 150, () => {
+    const btnVoltar = this.createMenuButton('Voltar', 140, () => {
       this.showMenu();
     });
-
-    this.selecionarFaseContainer.add([bg, title, btnVoltar]);
+    this.selecionarFaseContainer.add(btnVoltar);
   }
 
   showMenu() {
@@ -246,16 +228,37 @@ Participantes:
     this.sobreContainer.setVisible(false);
     this.comoJogarContainer.setVisible(false);
     this.selecionarFaseContainer.setVisible(true);
+
+    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || { 1: true };
+
+    this.faseButtons.forEach((btn, idx) => {
+      const fase = this.fases[idx];
+      const numeroFase = idx + 1;
+      const desbloqueada = progresso[numeroFase] === true;
+
+      if (desbloqueada) {
+        btn.setStyle({
+          color: '#ffffff',
+          backgroundColor: '#00aa00'
+        });
+
+        btn.setInteractive({ useHandCursor: true });
+        btn.removeAllListeners();
+        btn.on('pointerdown', () => this.scene.start(fase.key));
+        btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#008800' }));
+        btn.on('pointerout', () => btn.setStyle({ backgroundColor: '#00aa00' }));
+      } else {
+        btn.setStyle({
+          color: '#cccccc',
+          backgroundColor: '#555555'
+        });
+        btn.disableInteractive();
+        btn.removeAllListeners();
+      }
+    });
   }
 
   update() {
-    if (!this.orbiters) return;
-    const orbitRadius = 70;
-    const orbitSpeed = 0.02;
-    this.orbiters.forEach(o => {
-      o.angle += orbitSpeed;
-      o.sprite.x = this.portalCenter.x + orbitRadius * Math.cos(o.angle);
-      o.sprite.y = this.portalCenter.y + orbitRadius * Math.sin(o.angle);
-    });
+   
   }
 }

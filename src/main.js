@@ -1,7 +1,10 @@
 import MenuScene from './scenes/MenuScene.js';
 import GameScene from './scenes/GameScene.js';
 import IceScene from './scenes/IceScene.js';
-import BrazilScene from './scenes/BrazilScene.js';
+import EightiesScene from './scenes/EightiesScene.js';
+import MedievalScene from './scenes/MedievalScene.js';
+import DinoScene from './scenes/DinoScene.js';
+import FutureScene from './scenes/FutureScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -14,7 +17,7 @@ const config = {
       gravity: { y: 0 }
     }
   },
-  scene: [MenuScene, GameScene, IceScene, BrazilScene]
+  scene: [MenuScene, GameScene, IceScene, EightiesScene, MedievalScene, DinoScene, FutureScene]
 };
 
 const game = new Phaser.Game(config);
