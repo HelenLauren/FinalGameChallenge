@@ -5,6 +5,7 @@ import EightiesScene from './scenes/EightiesScene.js';
 import MedievalScene from './scenes/MedievalScene.js';
 import DinoScene from './scenes/DinoScene.js';
 import FutureScene from './scenes/FutureScene.js';
+import FinalScene from './scenes/FinalScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -17,7 +18,7 @@ const config = {
       gravity: { y: 0 }
     }
   },
-  scene: [MenuScene, GameScene, IceScene, EightiesScene, MedievalScene, DinoScene, FutureScene]
+  scene: [MenuScene, GameScene, IceScene, EightiesScene, MedievalScene, DinoScene, FutureScene, FinalScene]
 };
 
 const game = new Phaser.Game(config);

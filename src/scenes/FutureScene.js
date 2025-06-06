@@ -106,71 +106,83 @@ export default class FutureScene extends Phaser.Scene {
   }
 
   showLevelCompleteModal() {
-    this.modalBackground = this.add.rectangle(
-      this.cameras.main.worldView.x + this.cameras.main.width / 2,
-      this.cameras.main.worldView.y + this.cameras.main.height / 2,
-      this.cameras.main.width,
-      this.cameras.main.height,
-      0x000000,
-      0.6
-    ).setScrollFactor(0);
+  this.modalBackground = this.add.rectangle(
+    this.cameras.main.worldView.x + this.cameras.main.width / 2,
+    this.cameras.main.worldView.y + this.cameras.main.height / 2,
+    this.cameras.main.width,
+    this.cameras.main.height,
+    0x000000,
+    0.6
+  ).setScrollFactor(0);
 
-    this.modalContainer = this.add.container(
-      this.cameras.main.worldView.x + this.cameras.main.width / 2,
-      this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0);
+  this.modalContainer = this.add.container(
+    this.cameras.main.worldView.x + this.cameras.main.width / 2,
+    this.cameras.main.worldView.y + this.cameras.main.height / 2
+  ).setScrollFactor(0);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1);
-    panel.setStrokeStyle(2, 0x000000);
+  const panel = this.add.rectangle(0, 0, 360, 270, 0xffffff, 1);
+  panel.setStrokeStyle(2, 0x000000);
 
-    const title = this.add.text(0, -70, 'Fase Completa!', {
-      fontSize: '24px',
-      color: '#000',
-      fontStyle: 'bold',
-    }).setOrigin(0.5);
+  const title = this.add.text(0, -90, 'Fase Completa!', {
+    fontSize: '24px',
+    color: '#000',
+    fontStyle: 'bold',
+    align: 'center',
+    wordWrap: { width: 340 },
+  }).setOrigin(0.5);
 
-    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[3] = true;
-    localStorage.setItem('progressoFases', JSON.stringify(progresso));
+  const message = this.add.text(0, -40, 
+    'Parabéns, você conseguiu pegar todos os pacotes!\nAgora volte à sua linha do tempo e entregue para o personagem.',
+    {
+      fontSize: '16px',
+      color: '#333',
+      align: 'center',
+      wordWrap: { width: 320 }
+    }
+  ).setOrigin(0.5);
 
-    const btnNext = this.add.text(0, -20, 'Próxima Fase', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
+  progresso[7] = true;
+  localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
-    btnNext.on('pointerdown', () => {
-      this.destroyModal();
-      this.scene.start('EightiesScene'); //prox fase --------------------
-    });
+  const btnVoltar = this.add.text(0, 30, 'Voltar para a Linha do Tempo', {
+    fontSize: '18px',
+    color: '#ffffff',
+    backgroundColor: '#28a745',
+    padding: { x: 12, y: 6 },
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  btnVoltar.on('pointerdown', () => {
+    this.destroyModal();
+    this.scene.start('FinalScene'); // final scene ------
+  });
 
-    btnRestart.on('pointerdown', () => {
-      this.destroyModal();
-      this.scene.restart();
-    });
+  const btnRestart = this.add.text(0, 80, 'Reiniciar Fase', {
+    fontSize: '18px',
+    color: '#ffffff',
+    backgroundColor: '#007bff',
+    padding: { x: 10, y: 5 },
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    const btnMenu = this.add.text(0, 80, 'Menu Principal', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  btnRestart.on('pointerdown', () => {
+    this.destroyModal();
+    this.scene.restart();
+  });
 
-    btnMenu.on('pointerdown', () => {
-      this.destroyModal();
-      this.scene.start('MenuScene');
-    });
+  const btnMenu = this.add.text(0, 130, 'Menu Principal', {
+    fontSize: '18px',
+    color: '#ffffff',
+    backgroundColor: '#6c757d',
+    padding: { x: 10, y: 5 },
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
-  }
+  btnMenu.on('pointerdown', () => {
+    this.destroyModal();
+    this.scene.start('MenuScene');
+  });
+
+  this.modalContainer.add([panel, title, message, btnVoltar, btnRestart, btnMenu]);
+}
 
   destroyModal() {
     if (this.modalBackground) this.modalBackground.destroy();
