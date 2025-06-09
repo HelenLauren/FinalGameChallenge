@@ -2,7 +2,7 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
 
-    this.tileSize = 4;
+    this.tileSize = 6;
     this.cols = 512;
     this.rows = 224;
     this.worldWidth = this.cols * this.tileSize;
@@ -13,18 +13,18 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('heart_full', 'assets/images/coracaoCheio.png');
+    this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
   }
 
   create() {
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
-    // if personagem ainda não criado
-     if (!personagemSelecionado) {
+    if (!personagemSelecionado) {
       this.scene.start('BootScene');
       return;
     }
-    //personagem criado, continua com a criação da cena
-    //background
+
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -33,7 +33,9 @@ export default class GameScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
+
     this.player = this.matter.add.image(500, 400, personagemSelecionado);
+    this.player.setScale(2);
     this.player.setFixedRotation();
     this.player.setFrictionAir(0.2);
     this.player.setBounce(0);
@@ -71,6 +73,46 @@ export default class GameScene extends Phaser.Scene {
         }
       });
     });
+
+    // === HUD de vidas ===
+    this.vidas = 3;
+    this.coracoes = [];
+    const margin = 10;
+
+    for (let i = 0; i < 3; i++) {
+      const coracao = this.add.image(margin + i * 34, margin, 'heart_full')
+        .setScrollFactor(0)
+        .setDisplaySize(50, 50)
+        .setOrigin(0, 0);
+      this.coracoes.push(coracao);
+    }
+
+    this.nomeTexto = this.add.text(margin + 3 * 34 + 10, margin + 6, personagemSelecionado, {
+      fontSize: '16px',
+      fill: '#fff',
+      fontFamily: 'Arial',
+      stroke: '#000',
+      strokeThickness: 2
+    }).setScrollFactor(0);
+
+    // === Botão de menu canto esquerdo ===
+    this.btnMenu = this.add.text(margin, margin + 60, 'Menu', {
+      fontSize: '20px',
+      color: '#fff',
+      backgroundColor: '#5C4033',
+      padding: { x: 12, y: 6 },
+      fontFamily: 'Arial',
+      stroke: '#000',
+      strokeThickness: 2
+    })
+    .setScrollFactor(0)
+    .setOrigin(0, 0)
+    .setInteractive({ useHandCursor: true });
+
+    this.btnMenu.on('pointerdown', () => {
+      this.confirmarVoltarMenu();
+    });
+
   }
   spawnPortal() {
     const x = 180;
@@ -184,6 +226,12 @@ export default class GameScene extends Phaser.Scene {
   destroyModal() {
     if (this.modalBackground) this.modalBackground.destroy();
     if (this.modalContainer) this.modalContainer.destroy();
+  }
+  perderVida() {
+    if (this.vidas > 0) {
+      this.vidas--;
+      this.coracoes[this.vidas].setTexture('heart_empty');
+    }
   }
 
   update() {
