@@ -10,11 +10,21 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('player', 'https://labs.phaser.io/assets/sprites/phaser-dude.png');
+    this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
   }
 
   create() {
+    const personagemSelecionado = localStorage.getItem('personagemSelecionado');
+    // if personagem ainda não criado
+     if (!personagemSelecionado) {
+      this.scene.start('BootScene');
+      return;
+    }
+    //personagem criado, continua com a criação da cena
+    //background
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -23,8 +33,7 @@ export default class GameScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-
-    this.player = this.matter.add.image(400, 300, 'player');
+    this.player = this.matter.add.image(500, 400, personagemSelecionado);
     this.player.setFixedRotation();
     this.player.setFrictionAir(0.2);
     this.player.setBounce(0);
@@ -63,7 +72,6 @@ export default class GameScene extends Phaser.Scene {
       });
     });
   }
-
   spawnPortal() {
     const x = 180;
     const y = 200;
