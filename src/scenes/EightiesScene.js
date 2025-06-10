@@ -211,7 +211,7 @@ export default class EightiesScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[2] = true;
+    progresso[4] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
     const btnNext = this.add.text(0, -20, 'Próxima Fase', {

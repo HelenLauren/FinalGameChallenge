@@ -1,3 +1,5 @@
+import Player from '../../entidades/Player.js';
+import Hud from '../../ui/Hud.js';
 export default class MedievalScene extends Phaser.Scene {
   constructor() {
     super('MedievalScene');
@@ -13,8 +15,21 @@ export default class MedievalScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoCheio.png');
     this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
+    this.load.image('Autumn_tree1', 'assets/images/trees/Autumn_tree1.png');
+    this.load.image('Autumn_tree2', 'assets/images/trees/Autumn_tree2.png');
+    this.load.image('Autumn_tree3', 'assets/images/trees/Autumn_tree3.png');
+    this.load.image('Burned_tree1', 'assets/images/trees/Burned_tree1.png');
+    this.load.image('Burned_tree2', 'assets/images/trees/Burned_tree2.png');
+    this.load.image('Burned_tree3', 'assets/images/trees/Burned_tree3.png');
+    this.load.image('Broken_tree1', 'assets/images/trees/Broken_tree1.png');
+    this.load.image('Broken_tree3', 'assets/images/trees/Broken_tree3.png');
+    this.load.image('Broken_tree7', 'assets/images/trees/Broken_tree7.png');
+    this.load.image('Tree1', 'assets/images/trees/Tree1.png');
+    this.load.image('Tree2', 'assets/images/trees/Tree2.png');
+    this.load.image('Tree3', 'assets/images/trees/Tree3.png');
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
   }
 
@@ -24,7 +39,6 @@ export default class MedievalScene extends Phaser.Scene {
       this.scene.start('BootScene');
       return;
     }
-
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -33,43 +47,67 @@ export default class MedievalScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-    this.player = this.matter.add.sprite(500, 400, personagemSelecionado);
-    this.player.setScale(2);
-    this.player.setFixedRotation();
-    this.player.setFrictionAir(0.2);
-    this.player.setData('tag', 'player');
 
-    //animações do personagem:
-    this.anims.create({
-    key: 'front',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
-    frameRate: 5,
-    repeat: -1
-  });
-    this.anims.create({
-    key: 'left',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [12, 13, 14, 15, 16]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'right',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [24, 25, 26, 27, 28]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'back',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [36]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-  key: 'idle',
-  frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
-  frameRate: 1,
-  repeat: -1
-});
+    const treeKeys = [
+      'Autumn_tree1', 'Autumn_tree2', 'Autumn_tree3',
+      'Burned_tree1', 'Burned_tree2', 'Burned_tree3',
+      'Broken_tree1', 'Broken_tree3', 'Broken_tree7',
+      'Tree1', 'Tree2', 'Tree3'
+    ];
+
+    const minX = 500;
+    const maxX = this.worldWidth - 100;
+    const minY = 300;
+    const maxY = this.worldHeight - 100;
+
+    const numTrees = 60; // Quantidade de árvores
+    const minDistance = 100; // distância mínima entre árvores
+
+    const treePositions = [];
+
+    for (let i = 0; i < numTrees; i++) {
+      let x, y, validPos;
+      let attempts = 0;
+
+      do {
+        x = Phaser.Math.Between(minX, maxX);
+        y = Phaser.Math.Between(minY, maxY);
+        validPos = true;
+
+        for (const pos of treePositions) {
+          const dist = Phaser.Math.Distance.Between(x, y, pos.x, pos.y);
+          if (dist < minDistance) {
+            validPos = false;
+            break;
+          }
+        }
+
+        attempts++;
+        if (attempts > 100) {
+          // evita loop infinito caso não encontre posição válida
+          break;
+        }
+      } while (!validPos);
+
+      treePositions.push({ x, y });
+
+      const key = Phaser.Utils.Array.GetRandom(treeKeys);
+
+      // Cria árvore com corpo físico estático para colisão
+      const tree = this.matter.add.image(x, y, key, null, { isStatic: true });
+      
+      const scale = Phaser.Math.FloatBetween(1.5, 2.5);
+      tree.setScale(scale);
+
+      tree.rotation = Phaser.Math.FloatBetween(-0.2, 0.2);
+
+      // Ajustar sensor de colisão para cobrir a área da árvore (opcional)
+      // Você pode ajustar a forma do corpo se quiser colisão mais precisa
+      tree.setRectangle(tree.width * scale * 0.7, tree.height * scale * 0.7);
+    }
+
+    this.player = new Player(this, 500, 400, personagemSelecionado);
+    this.hud = new Hud(this, personagemSelecionado);
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -103,87 +141,6 @@ export default class MedievalScene extends Phaser.Scene {
         }
       });
     });
-
-    // === HUD de vidas ===
-    this.vidas = 3;
-    this.coracoes = [];
-    const margin = 10;
-
-    for (let i = 0; i < 3; i++) {
-      const coracao = this.add.image(margin + i * 34, margin, 'heart_full')
-        .setScrollFactor(0)
-        .setDisplaySize(50, 50)
-        .setOrigin(0, 0);
-      this.coracoes.push(coracao);
-    }
-
-    this.nomeTexto = this.add.text(margin + 3 * 34 + 10, margin + 6, personagemSelecionado, {
-      fontSize: '16px',
-      fill: '#fff',
-      fontFamily: '"Press Start 2P"',
-      stroke: '#000',
-      strokeThickness: 2
-    }).setScrollFactor(0);
-
-    // === Botão de menu canto esquerdo ===
-    this.btnMenu = this.add.text(margin, margin + 60, 'Menu', {
-      fontSize: '20px',
-      color: '#fff',
-      backgroundColor: '#5C4033',
-      padding: { x: 12, y: 6 },
-      fontFamily: '"Press Start 2P"',
-      stroke: '#000',
-      strokeThickness: 2
-    })
-    .setScrollFactor(0)
-    .setOrigin(0, 0)
-    .setInteractive({ useHandCursor: true });
-
-    this.btnMenu.on('pointerdown', () => {
-      this.confirmarVoltarMenu();
-    });
-
-  }
-  spawnPortal() {
-    const x = 180;
-    const y = 200;
-
-    if (this.portalMain) {
-      this.portalMain.destroy();
-      this.portalRings.forEach(r => r.sprite.destroy());
-      this.portalRays.forEach(r => r.graphics.destroy());
-      this.portalRings = [];
-      this.portalRays = [];
-    }
-
-    this.portalMain = this.add.circle(x, y, 30, 0xED3FFF, 0.4);
-    this.matter.add.gameObject(this.portalMain, {
-      shape: { type: 'circle', radius: 30 },
-      isStatic: true,
-      isSensor: true,
-    });
-    this.portalMain.setData('tag', 'portal');
-
-    for (let i = 1; i <= 3; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.15);
-      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
-    }
-
-    const rayCount = 12;
-    const rayLength = 10;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = Phaser.Math.DegToRad((360 / rayCount) * i);
-      const ray = this.add.graphics();
-      ray.lineStyle(2, 0xDF9CFF, 0.8);
-      ray.beginPath();
-      ray.moveTo(0, 0);
-      ray.lineTo(rayLength, 0);
-      ray.strokePath();
-      ray.x = x + 30 * Math.cos(angle);
-      ray.y = y + 30 * Math.sin(angle);
-      ray.rotation = angle;
-      this.portalRays.push({ graphics: ray, angle });
-    }
   }
 
   showLevelCompleteModal() {
@@ -211,7 +168,7 @@ export default class MedievalScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[2] = true;
+    progresso[5] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
     const btnNext = this.add.text(0, -20, 'Próxima Fase', {
@@ -261,6 +218,26 @@ export default class MedievalScene extends Phaser.Scene {
     if (this.vidas > 0) {
       this.vidas--;
       this.coracoes[this.vidas].setTexture('heart_empty');
+    }
+  }
+  spawnPortal() {
+    const x = 180;
+    const y = 200;
+    this.portalMain?.destroy();
+    this.portalRings?.forEach(r => r.sprite.destroy());
+    this.portalRings = [];
+
+    this.portalMain = this.add.image(x, y, 'portal_center').setScale(1).setAlpha(0.9);
+    this.matter.add.gameObject(this.portalMain, {
+      shape: { type: 'circle', radius: 30 },
+      isStatic: true,
+      isSensor: true,
+    });
+    this.portalMain.setData('tag', 'portal');
+    // Anéis
+    for (let i = 1; i <= 2; i++) {
+      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
+      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
   }
 
@@ -314,6 +291,9 @@ export default class MedievalScene extends Phaser.Scene {
     }
 
     // Animações do portal
+    if (this.portalMain) {
+      this.portalMain.rotation += 0.02;
+    }
     if (this.portalRings) {
       this.portalRings.forEach(ringObj => {
         if (ringObj.growing) {
@@ -324,16 +304,6 @@ export default class MedievalScene extends Phaser.Scene {
           if (ringObj.scale <= 1) ringObj.growing = true;
         }
         ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
-
-    if (this.portalRays && this.portalMain) {
-      const rotationSpeed = 0.02;
-      this.portalRays.forEach(rayObj => {
-        rayObj.angle += rotationSpeed;
-        rayObj.graphics.x = this.portalMain.x + 30 * Math.cos(rayObj.angle);
-        rayObj.graphics.y = this.portalMain.y + 30 * Math.sin(rayObj.angle);
-        rayObj.graphics.rotation = rayObj.angle;
       });
     }
   }
