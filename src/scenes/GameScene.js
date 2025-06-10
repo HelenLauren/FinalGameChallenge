@@ -15,6 +15,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoCheio.png');
     this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
@@ -150,44 +151,24 @@ export default class GameScene extends Phaser.Scene {
   spawnPortal() {
     const x = 180;
     const y = 200;
+    this.portalMain?.destroy();
+    this.portalRings?.forEach(r => r.sprite.destroy());
+    this.portalRings = [];
 
-    if (this.portalMain) {
-      this.portalMain.destroy();
-      this.portalRings.forEach(r => r.sprite.destroy());
-      this.portalRays.forEach(r => r.graphics.destroy());
-      this.portalRings = [];
-      this.portalRays = [];
-    }
-
-    this.portalMain = this.add.circle(x, y, 30, 0xED3FFF, 0.4);
+    this.portalMain = this.add.image(x, y, 'portal_center').setScale(1).setAlpha(0.9);
     this.matter.add.gameObject(this.portalMain, {
       shape: { type: 'circle', radius: 30 },
       isStatic: true,
       isSensor: true,
     });
     this.portalMain.setData('tag', 'portal');
-
-    for (let i = 1; i <= 3; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.15);
+    // Anéis
+    for (let i = 1; i <= 2; i++) {
+      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
       this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
-
-    const rayCount = 12;
-    const rayLength = 10;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = Phaser.Math.DegToRad((360 / rayCount) * i);
-      const ray = this.add.graphics();
-      ray.lineStyle(2, 0xDF9CFF, 0.8);
-      ray.beginPath();
-      ray.moveTo(0, 0);
-      ray.lineTo(rayLength, 0);
-      ray.strokePath();
-      ray.x = x + 30 * Math.cos(angle);
-      ray.y = y + 30 * Math.sin(angle);
-      ray.rotation = angle;
-      this.portalRays.push({ graphics: ray, angle });
-    }
   }
+
   update() {
     const speed = 4;
     let vx = 0;
@@ -238,6 +219,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Animações do portal
+    if (this.portalMain) {
+      this.portalMain.rotation += 0.02;
+    }
     if (this.portalRings) {
       this.portalRings.forEach(ringObj => {
         if (ringObj.growing) {
@@ -248,16 +232,6 @@ export default class GameScene extends Phaser.Scene {
           if (ringObj.scale <= 1) ringObj.growing = true;
         }
         ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
-
-    if (this.portalRays && this.portalMain) {
-      const rotationSpeed = 0.02;
-      this.portalRays.forEach(rayObj => {
-        rayObj.angle += rotationSpeed;
-        rayObj.graphics.x = this.portalMain.x + 30 * Math.cos(rayObj.angle);
-        rayObj.graphics.y = this.portalMain.y + 30 * Math.sin(rayObj.angle);
-        rayObj.graphics.rotation = rayObj.angle;
       });
     }
   }
