@@ -45,7 +45,7 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     });
     anims.create({
       key: `${prefix}_idle`,
-      frames: anims.generateFrameNumbers(prefix, { frames: [0] }),
+      frames: anims.generateFrameNumbers(prefix, { frames: [0, 1, 2, 3, 4] }),
       frameRate: 1,
       repeat: -1
     });
