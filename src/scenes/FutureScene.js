@@ -265,54 +265,7 @@ export default class FutureScene extends Phaser.Scene {
   }
 
   update() {
-    const speed = 4;
-    let vx = 0;
-    let vy = 0;
-
-    const cursors = this.cursors;
-
-    // Zerar velocidade padrão
-    this.player.setVelocity(0);
-
-    if (this.cursors.left.isDown) {
-      vx = -speed;
-      this.player.anims.play('left', true);
-    } else if (this.cursors.right.isDown) {
-      vx = speed;
-      this.player.anims.play('right', true);
-    } else if (this.cursors.up.isDown) {
-      vy = -speed;
-      this.player.anims.play('back', true);
-    } else if (this.cursors.down.isDown) {
-      vy = speed;
-      this.player.anims.play('front', true);
-    } else {
-        this.player.setVelocity(0);
-        this.player.anims.play('idle', true);
-    }
-
-    this.player.setVelocity(vx, vy);
-
-    // Limitar a posição do jogador dentro do mundo
-    const halfWidth = this.player.displayWidth / 2;
-    const halfHeight = this.player.displayHeight / 2;
-
-    if (this.player.x < halfWidth) {
-      this.player.x = halfWidth;
-      this.player.setVelocityX(0);
-    } else if (this.player.x > this.worldWidth - halfWidth) {
-      this.player.x = this.worldWidth - halfWidth;
-      this.player.setVelocityX(0);
-    }
-
-    if (this.player.y < halfHeight) {
-      this.player.y = halfHeight;
-      this.player.setVelocityY(0);
-    } else if (this.player.y > this.worldHeight - halfHeight) {
-      this.player.y = this.worldHeight - halfHeight;
-      this.player.setVelocityY(0);
-    }
-
+    this.player.updateMovement(this.cursors);
     // Animações do portal
     if (this.portalRings) {
       this.portalRings.forEach(ringObj => {
