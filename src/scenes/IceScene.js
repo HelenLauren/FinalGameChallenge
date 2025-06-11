@@ -23,23 +23,61 @@ export default class IceScene extends Phaser.Scene {
     if (!personagemSelecionado) {
       this.scene.start('BootScene');
       return;
+    } else {
+      this.player = this.matter.add.sprite(500, 400, personagemSelecionado);
+      this.player.setScale(2);
+      this.player.setFixedRotation();
+      this.player.setFrictionAir(0.2);
+      this.player.setBounce(0);
+      this.player.setData('tag', 'player');
     }
 
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
-        const color = Phaser.Math.Between(0, 1) === 0 ? 0xbfdfff : 0xe6f7ff;
+        const color = Phaser.Math.Between(0, 1) === 0 ? 0x018600 : 0x018e00;
         graphics.fillStyle(color, 1);
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-
-    this.player = this.matter.add.image(500, 400, personagemSelecionado);
+    this.player = this.matter.add.sprite(500, 400, personagemSelecionado);
     this.player.setScale(2);
     this.player.setFixedRotation();
     this.player.setFrictionAir(0.2);
     this.player.setBounce(0);
     this.player.setData('tag', 'player');
+
+    //animações do personagem:
+    this.anims.create({
+    key: 'front',
+    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
+    frameRate: 5,
+    repeat: -1
+  });
+    this.anims.create({
+    key: 'left',
+    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [12, 13, 14, 15, 16]}),
+    frameRate: 5,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'right',
+    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [24, 25, 26, 27, 28]}),
+    frameRate: 5,
+    repeat: -1
+  });
+  this.anims.create({
+    key: 'back',
+    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [36]}),
+    frameRate: 5,
+    repeat: -1
+  });
+  this.anims.create({
+  key: 'idle',
+  frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
+  frameRate: 1,
+  repeat: -1
+});
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -74,6 +112,7 @@ export default class IceScene extends Phaser.Scene {
       });
     });
 
+    // === HUD de vidas ===
     this.vidas = 3;
     this.coracoes = [];
     const margin = 10;
@@ -89,17 +128,18 @@ export default class IceScene extends Phaser.Scene {
     this.nomeTexto = this.add.text(margin + 3 * 34 + 10, margin + 6, personagemSelecionado, {
       fontSize: '16px',
       fill: '#fff',
-      fontFamily: 'Arial',
+      fontFamily: '"Press Start 2P"',
       stroke: '#000',
       strokeThickness: 2
     }).setScrollFactor(0);
 
+    // === Botão de menu canto esquerdo ===
     this.btnMenu = this.add.text(margin, margin + 60, 'Menu', {
       fontSize: '20px',
       color: '#fff',
-      backgroundColor: '#003366',
+      backgroundColor: '#5C4033',
       padding: { x: 12, y: 6 },
-      fontFamily: 'Arial',
+      fontFamily: '"Press Start 2P"',
       stroke: '#000',
       strokeThickness: 2
     })
@@ -110,8 +150,8 @@ export default class IceScene extends Phaser.Scene {
     this.btnMenu.on('pointerdown', () => {
       this.confirmarVoltarMenu();
     });
-  }
 
+  }
   spawnPortal() {
     const x = 180;
     const y = 200;
@@ -124,7 +164,7 @@ export default class IceScene extends Phaser.Scene {
       this.portalRays = [];
     }
 
-    this.portalMain = this.add.circle(x, y, 30, 0x66ccff, 0.4);
+    this.portalMain = this.add.circle(x, y, 30, 0xED3FFF, 0.4);
     this.matter.add.gameObject(this.portalMain, {
       shape: { type: 'circle', radius: 30 },
       isStatic: true,
@@ -133,7 +173,7 @@ export default class IceScene extends Phaser.Scene {
     this.portalMain.setData('tag', 'portal');
 
     for (let i = 1; i <= 3; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xaadfff, 0.15);
+      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.15);
       this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
 
@@ -142,7 +182,7 @@ export default class IceScene extends Phaser.Scene {
     for (let i = 0; i < rayCount; i++) {
       const angle = Phaser.Math.DegToRad((360 / rayCount) * i);
       const ray = this.add.graphics();
-      ray.lineStyle(2, 0xaadfff, 0.8);
+      ray.lineStyle(2, 0xDF9CFF, 0.8);
       ray.beginPath();
       ray.moveTo(0, 0);
       ray.lineTo(rayLength, 0);
@@ -172,14 +212,14 @@ export default class IceScene extends Phaser.Scene {
     const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1);
     panel.setStrokeStyle(2, 0x000000);
 
-    const title = this.add.text(0, -70, 'Fase de Gelo Completa!', {
+    const title = this.add.text(0, -70, 'Fase Completa!', {
       fontSize: '24px',
       color: '#000',
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[3] = true; // fase 3 completa
+    progresso[3] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
     const btnNext = this.add.text(0, -20, 'Próxima Fase', {
@@ -191,7 +231,7 @@ export default class IceScene extends Phaser.Scene {
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
-      this.scene.start('EightiesScene'); //----------------------próxima fase
+      this.scene.start('EightiesScene'); //prox fase -----------------
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
@@ -225,7 +265,6 @@ export default class IceScene extends Phaser.Scene {
     if (this.modalBackground) this.modalBackground.destroy();
     if (this.modalContainer) this.modalContainer.destroy();
   }
-
   perderVida() {
     if (this.vidas > 0) {
       this.vidas--;
@@ -235,23 +274,34 @@ export default class IceScene extends Phaser.Scene {
 
   update() {
     const speed = 4;
+    let vx = 0;
+    let vy = 0;
+
+    const cursors = this.cursors;
+
+    // Zerar velocidade padrão
+    this.player.setVelocity(0);
 
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-speed);
+      vx = -speed;
+      this.player.anims.play('left', true);
     } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(speed);
-    } else {
-      this.player.setVelocityX(0);
-    }
-
-    if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-speed);
+      vx = speed;
+      this.player.anims.play('right', true);
+    } else if (this.cursors.up.isDown) {
+      vy = -speed;
+      this.player.anims.play('back', true);
     } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(speed);
+      vy = speed;
+      this.player.anims.play('front', true);
     } else {
-      this.player.setVelocityY(0);
+        this.player.setVelocity(0);
+        this.player.anims.play('idle', true);
     }
 
+    this.player.setVelocity(vx, vy);
+
+    // Limitar a posição do jogador dentro do mundo
     const halfWidth = this.player.displayWidth / 2;
     const halfHeight = this.player.displayHeight / 2;
 
@@ -269,6 +319,30 @@ export default class IceScene extends Phaser.Scene {
     } else if (this.player.y > this.worldHeight - halfHeight) {
       this.player.y = this.worldHeight - halfHeight;
       this.player.setVelocityY(0);
+    }
+
+    // Animações do portal
+    if (this.portalRings) {
+      this.portalRings.forEach(ringObj => {
+        if (ringObj.growing) {
+          ringObj.scale += 0.01;
+          if (ringObj.scale >= 1.0) ringObj.growing = false;
+        } else {
+          ringObj.scale -= 0.01;
+          if (ringObj.scale <= 1) ringObj.growing = true;
+        }
+        ringObj.sprite.setScale(ringObj.scale);
+      });
+    }
+
+    if (this.portalRays && this.portalMain) {
+      const rotationSpeed = 0.02;
+      this.portalRays.forEach(rayObj => {
+        rayObj.angle += rotationSpeed;
+        rayObj.graphics.x = this.portalMain.x + 30 * Math.cos(rayObj.angle);
+        rayObj.graphics.y = this.portalMain.y + 30 * Math.sin(rayObj.angle);
+        rayObj.graphics.rotation = rayObj.angle;
+      });
     }
   }
 }

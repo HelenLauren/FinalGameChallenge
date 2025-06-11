@@ -1,21 +1,22 @@
-# FinalGameChallenge
-Projeto final da disciplina de HTML5 Canvas e Games do 3° período
+# FinalGameChallenge  
+Projeto final da disciplina **HTML5 Canvas e Games** – 3º período
 
-> 🔧 *Este projeto ainda está em fase de desenvolvimento. As ideias a seguir representam a proposta inicial e estão sujeitas a mudanças conforme o desenvolvimento avança.*
-> Entrega 15/06/2025 - Domingo
+> 📅 Entrega: **15/06/2025 (domingo)**  
+> ⚠️ *Projeto em desenvolvimento. Algumas funcionalidades podem mudar ao longo do processo.*
 
-## 🎮 Ideias e Funcionalidades Planejadas
+## 🎮 Visão Geral
 
-- Fases com ambientações diferentes (cada uma representando uma era da história)
-- Progressão gradual de dificuldade a cada fase
-- Sistema de score e vidas, com transições visuais entre fases
-- Portais temporais para viajar entre os níveis (possível uso de efeitos de rotação e transição)
-- Inimigos e obstáculos com comportamento simples e gerados parcialmente com lógica aleatória
-- Uso de assets gratuitos (sprites, sons e trilhas condizentes com cada era)
-- Estrutura de código organizada em classes (Jogador, Inimigo, Fase, Entrega, Gerenciador do Jogo)
+Um jogo com múltiplas fases temáticas inspiradas em diferentes eras da história, com progressão de dificuldade e efeitos visuais imersivos. O jogador enfrenta inimigos e obstáculos enquanto coleta itens e avança por portais temporais.
 
-## 🚀 Tecnologias pretendidas
+### Funcionalidades em desenvolvimento:
+- Ambientações variadas por fase
+- Aumento gradual de dificuldade
+- Sistema de pontuação e vidas
+- Inimigos e obstáculos com comportamentos simples (parcialmente aleatórios)
+- Uso de assets gratuitos (sprites, áudios e trilhas temáticas)
 
-- JavaScript
-- [Phaser.js](https://phaser.io/)
-- HTML5 / CSS3
+## 🛠️ Tecnologias
+
+- **JavaScript**
+- **Phaser.js** – [phaser.io](https://phaser.io/)
+- **HTML5 / CSS3**

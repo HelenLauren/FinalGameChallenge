@@ -1,3 +1,5 @@
+import Player from '../../entidades/Player.js';
+import Hud from '../../ui/Hud.js';
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
@@ -13,18 +15,23 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+<<<<<<< HEAD
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
+=======
+    this.load.image('portal_center', 'assets/images/portal.png');
+    this.load.image('heart_full', 'assets/images/coracaoCheio.png');
+    this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
+>>>>>>> d38ab5d74cb906f4f27e4cce2e4ca843918981c7
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
   }
 
   create() {
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
-    if (!personagemSelecionado) {
-      this.scene.start('BootScene');
-      return;
-    }
-
+  if (!personagemSelecionado) {
+    this.scene.start('BootScene');
+    return;
+  }
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -33,13 +40,8 @@ export default class GameScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-
-    this.player = this.matter.add.image(500, 400, personagemSelecionado);
-    this.player.setScale(2);
-    this.player.setFixedRotation();
-    this.player.setFrictionAir(0.2);
-    this.player.setBounce(0);
-    this.player.setData('tag', 'player');
+    this.player = new Player(this, 500, 400, personagemSelecionado);
+    this.hud = new Hud(this, personagemSelecionado);
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -73,89 +75,7 @@ export default class GameScene extends Phaser.Scene {
         }
       });
     });
-
-    // === HUD de vidas ===
-    this.vidas = 3;
-    this.coracoes = [];
-    const margin = 10;
-
-    for (let i = 0; i < 3; i++) {
-      const coracao = this.add.image(margin + i * 34, margin, 'heart_full')
-        .setScrollFactor(0)
-        .setDisplaySize(50, 50)
-        .setOrigin(0, 0);
-      this.coracoes.push(coracao);
-    }
-
-    this.nomeTexto = this.add.text(margin + 3 * 34 + 10, margin + 6, personagemSelecionado, {
-      fontSize: '16px',
-      fill: '#fff',
-      fontFamily: 'Arial',
-      stroke: '#000',
-      strokeThickness: 2
-    }).setScrollFactor(0);
-
-    // === Botão de menu canto esquerdo ===
-    this.btnMenu = this.add.text(margin, margin + 60, 'Menu', {
-      fontSize: '20px',
-      color: '#fff',
-      backgroundColor: '#5C4033',
-      padding: { x: 12, y: 6 },
-      fontFamily: 'Arial',
-      stroke: '#000',
-      strokeThickness: 2
-    })
-    .setScrollFactor(0)
-    .setOrigin(0, 0)
-    .setInteractive({ useHandCursor: true });
-
-    this.btnMenu.on('pointerdown', () => {
-      this.confirmarVoltarMenu();
-    });
-
   }
-  spawnPortal() {
-    const x = 180;
-    const y = 200;
-
-    if (this.portalMain) {
-      this.portalMain.destroy();
-      this.portalRings.forEach(r => r.sprite.destroy());
-      this.portalRays.forEach(r => r.graphics.destroy());
-      this.portalRings = [];
-      this.portalRays = [];
-    }
-
-    this.portalMain = this.add.circle(x, y, 30, 0xED3FFF, 0.4);
-    this.matter.add.gameObject(this.portalMain, {
-      shape: { type: 'circle', radius: 30 },
-      isStatic: true,
-      isSensor: true,
-    });
-    this.portalMain.setData('tag', 'portal');
-
-    for (let i = 1; i <= 3; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.15);
-      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
-    }
-
-    const rayCount = 12;
-    const rayLength = 10;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = Phaser.Math.DegToRad((360 / rayCount) * i);
-      const ray = this.add.graphics();
-      ray.lineStyle(2, 0xDF9CFF, 0.8);
-      ray.beginPath();
-      ray.moveTo(0, 0);
-      ray.lineTo(rayLength, 0);
-      ray.strokePath();
-      ray.x = x + 30 * Math.cos(angle);
-      ray.y = y + 30 * Math.sin(angle);
-      ray.rotation = angle;
-      this.portalRays.push({ graphics: ray, angle });
-    }
-  }
-
   showLevelCompleteModal() {
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
@@ -233,27 +153,55 @@ export default class GameScene extends Phaser.Scene {
       this.coracoes[this.vidas].setTexture('heart_empty');
     }
   }
+  spawnPortal() {
+    const x = 180;
+    const y = 200;
+    this.portalMain?.destroy();
+    this.portalRings?.forEach(r => r.sprite.destroy());
+    this.portalRings = [];
+
+    this.portalMain = this.add.image(x, y, 'portal_center').setScale(1).setAlpha(0.9);
+    this.matter.add.gameObject(this.portalMain, {
+      shape: { type: 'circle', radius: 30 },
+      isStatic: true,
+      isSensor: true,
+    });
+    this.portalMain.setData('tag', 'portal');
+    // Anéis
+    for (let i = 1; i <= 2; i++) {
+      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
+      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
+    }
+  }
 
   update() {
     const speed = 4;
+    let vx = 0;
+    let vy = 0;
 
-    // Movimento horizontal
+    const cursors = this.cursors;
+
+    // Zerar velocidade padrão
+    this.player.setVelocity(0);
+
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-speed);
+      vx = -speed;
+      this.player.anims.play('left', true);
     } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(speed);
+      vx = speed;
+      this.player.anims.play('right', true);
+    } else if (this.cursors.up.isDown) {
+      vy = -speed;
+      this.player.anims.play('back', true);
+    } else if (this.cursors.down.isDown) {
+      vy = speed;
+      this.player.anims.play('front', true);
     } else {
-      this.player.setVelocityX(0);
+        this.player.setVelocity(0);
+        this.player.anims.play('idle', true);
     }
 
-    // Movimento vertical
-    if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-speed);
-    } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(speed);
-    } else {
-      this.player.setVelocityY(0);
-    }
+    this.player.setVelocity(vx, vy);
 
     // Limitar a posição do jogador dentro do mundo
     const halfWidth = this.player.displayWidth / 2;
@@ -276,6 +224,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     // Animações do portal
+    if (this.portalMain) {
+      this.portalMain.rotation += 0.02;
+    }
     if (this.portalRings) {
       this.portalRings.forEach(ringObj => {
         if (ringObj.growing) {
@@ -286,16 +237,6 @@ export default class GameScene extends Phaser.Scene {
           if (ringObj.scale <= 1) ringObj.growing = true;
         }
         ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
-
-    if (this.portalRays && this.portalMain) {
-      const rotationSpeed = 0.02;
-      this.portalRays.forEach(rayObj => {
-        rayObj.angle += rotationSpeed;
-        rayObj.graphics.x = this.portalMain.x + 30 * Math.cos(rayObj.angle);
-        rayObj.graphics.y = this.portalMain.y + 30 * Math.sin(rayObj.angle);
-        rayObj.graphics.rotation = rayObj.angle;
       });
     }
   }
