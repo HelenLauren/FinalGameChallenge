@@ -1,6 +1,6 @@
 import Player from '../../entidades/Player.js';
 import Hud from '../../ui/Hud.js';
-import MedievalTreeSpawner from '../ambientacao/MedievalTreeSpawner.js';
+import MedievalSpawner from '../ambientacao/MedievalSpawner.js';
 export default class MedievalScene extends Phaser.Scene {
   constructor() {
     super('MedievalScene');
@@ -17,8 +17,8 @@ export default class MedievalScene extends Phaser.Scene {
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.image('portal_center', 'assets/images/portal.png');
-    this.load.image('heart_full', 'assets/images/coracaoCheio.png');
-    this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
+    this.load.image('heart_full', 'assets/images/coracaoRosa.png');
+    this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('Autumn_tree1', 'assets/images/trees/Autumn_tree1.png');
     this.load.image('Autumn_tree2', 'assets/images/trees/Autumn_tree2.png');
     this.load.image('Autumn_tree3', 'assets/images/trees/Autumn_tree3.png');
@@ -27,10 +27,14 @@ export default class MedievalScene extends Phaser.Scene {
     this.load.image('Burned_tree3', 'assets/images/trees/Burned_tree3.png');
     this.load.image('Broken_tree1', 'assets/images/trees/Broken_tree1.png');
     this.load.image('Broken_tree3', 'assets/images/trees/Broken_tree3.png');
-    this.load.image('Broken_tree7', 'assets/images/trees/Broken_tree7.png');
     this.load.image('Tree1', 'assets/images/trees/Tree1.png');
     this.load.image('Tree2', 'assets/images/trees/Tree2.png');
     this.load.image('Tree3', 'assets/images/trees/Tree3.png');
+    this.load.image('medievalHouse1', 'assets/images/medieval/medievalHouse1.png');
+    this.load.image('medievalHouse2', 'assets/images/medieval/medievalHouse2.png');
+    this.load.image('medievalHouse4', 'assets/images/medieval/medievalHouse4.png');
+    this.load.image('medievalHouse5', 'assets/images/medieval/medievalHouse5.png');
+    this.load.image('medievalHouse6', 'assets/images/medieval/medievalHouse6.png');
     this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
   }
 
@@ -49,8 +53,9 @@ export default class MedievalScene extends Phaser.Scene {
       }
     }
 
-    const treeSpawner = new MedievalTreeSpawner(this);
-    treeSpawner.spawnTrees();
+    const medievalSpawner = new MedievalSpawner(this);
+    medievalSpawner.spawnTrees();
+    medievalSpawner.spawnHouses();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
     this.hud = new Hud(this, personagemSelecionado);
