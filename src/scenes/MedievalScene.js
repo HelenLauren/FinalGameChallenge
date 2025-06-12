@@ -1,5 +1,6 @@
 import Player from '../../entidades/Player.js';
 import Hud from '../../ui/Hud.js';
+import MedievalTreeSpawner from '../ambientacao/MedievalTreeSpawner.js';
 export default class MedievalScene extends Phaser.Scene {
   constructor() {
     super('MedievalScene');
@@ -48,63 +49,8 @@ export default class MedievalScene extends Phaser.Scene {
       }
     }
 
-    const treeKeys = [
-      'Autumn_tree1', 'Autumn_tree2', 'Autumn_tree3',
-      'Burned_tree1', 'Burned_tree2', 'Burned_tree3',
-      'Broken_tree1', 'Broken_tree3', 'Broken_tree7',
-      'Tree1', 'Tree2', 'Tree3'
-    ];
-
-    const minX = 500;
-    const maxX = this.worldWidth - 100;
-    const minY = 300;
-    const maxY = this.worldHeight - 100;
-
-    const numTrees = 60; // Quantidade de árvores
-    const minDistance = 100; // distância mínima entre árvores
-
-    const treePositions = [];
-
-    for (let i = 0; i < numTrees; i++) {
-      let x, y, validPos;
-      let attempts = 0;
-
-      do {
-        x = Phaser.Math.Between(minX, maxX);
-        y = Phaser.Math.Between(minY, maxY);
-        validPos = true;
-
-        for (const pos of treePositions) {
-          const dist = Phaser.Math.Distance.Between(x, y, pos.x, pos.y);
-          if (dist < minDistance) {
-            validPos = false;
-            break;
-          }
-        }
-
-        attempts++;
-        if (attempts > 100) {
-          // evita loop infinito caso não encontre posição válida
-          break;
-        }
-      } while (!validPos);
-
-      treePositions.push({ x, y });
-
-      const key = Phaser.Utils.Array.GetRandom(treeKeys);
-
-      // Cria árvore com corpo físico estático para colisão
-      const tree = this.matter.add.image(x, y, key, null, { isStatic: true });
-      
-      const scale = Phaser.Math.FloatBetween(1.5, 2.5);
-      tree.setScale(scale);
-
-      tree.rotation = Phaser.Math.FloatBetween(-0.2, 0.2);
-
-      // Ajustar sensor de colisão para cobrir a área da árvore (opcional)
-      // Você pode ajustar a forma do corpo se quiser colisão mais precisa
-      tree.setRectangle(tree.width * scale * 0.7, tree.height * scale * 0.7);
-    }
+    const treeSpawner = new MedievalTreeSpawner(this);
+    treeSpawner.spawnTrees();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
     this.hud = new Hud(this, personagemSelecionado);
