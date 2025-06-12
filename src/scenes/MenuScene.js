@@ -8,6 +8,7 @@ export default class MenuScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.audio('menu-theme', 'assets/audio/menu-theme.mp3');
   }
 
   create() {
@@ -32,6 +33,13 @@ export default class MenuScene extends Phaser.Scene {
 
 
   this.showMenu();
+  if (!this.sound.get('menu-theme')) {
+  this.menuMusic = this.sound.add('menu-theme', {
+    loop: true,
+    volume: 0.5
+  });
+  this.menuMusic.play();
+}
 }
 
   createMainMenu() {
@@ -237,6 +245,9 @@ export default class MenuScene extends Phaser.Scene {
     ]);
     this.input.keyboard.once('keydown-ENTER', () => {
       localStorage.setItem('personagemSelecionado', personagemKey);
+      if (this.menuMusic) {
+        this.menuMusic.stop();
+      }
       this.scene.start('GameScene');
     });
   }
