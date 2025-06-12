@@ -1,8 +1,8 @@
 import Player from '../../entidades/Player.js';
 import Hud from '../../ui/Hud.js';
-export default class GameScene extends Phaser.Scene {
+export default class FutureScene extends Phaser.Scene {
   constructor() {
-    super('GameScene');
+    super('FutureScene');
 
     this.tileSize = 6;
     this.cols = 512;
