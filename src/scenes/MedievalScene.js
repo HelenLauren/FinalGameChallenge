@@ -30,12 +30,21 @@ export default class MedievalScene extends Phaser.Scene {
     this.load.image('Tree1', 'assets/images/trees/Tree1.png');
     this.load.image('Tree2', 'assets/images/trees/Tree2.png');
     this.load.image('Tree3', 'assets/images/trees/Tree3.png');
+    this.load.image('bush21', 'assets/images/bush/Bush_simple2_1.png');
+    this.load.image('bush22', 'assets/images/bush/Bush_simple2_2.png');
+    this.load.image('bush23', 'assets/images/bush/Bush_simple2_3.png');
+    this.load.image('autumnbush1', 'assets/images/bush/Autumn_bush1.png');
+    this.load.image('autumnbush2', 'assets/images/bush/Autumn_bush2.png');
+    this.load.image('blueflowerbush1', 'assets/images/bush/Bush_blue_flowers1.png');
+    this.load.image('blueflowerbush2', 'assets/images/bush/Bush_blue_flowers2.png');
+    this.load.image('orangeflowerbush1', 'assets/images/bush/Bush_orange_flowers1.png');
+    this.load.image('orangeflowerbush2', 'assets/images/bush/Bush_orange_flowers2.png');
     this.load.image('medievalHouse1', 'assets/images/medieval/medievalHouse1.png');
     this.load.image('medievalHouse2', 'assets/images/medieval/medievalHouse2.png');
     this.load.image('medievalHouse4', 'assets/images/medieval/medievalHouse4.png');
     this.load.image('medievalHouse5', 'assets/images/medieval/medievalHouse5.png');
     this.load.image('medievalHouse6', 'assets/images/medieval/medievalHouse6.png');
-    this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
+    this.load.image('package', 'assets/images/package.png');
   }
 
   create() {
@@ -55,6 +64,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     const medievalSpawner = new MedievalSpawner(this);
     medievalSpawner.spawnTrees();
+    medievalSpawner.spawnBush();
     medievalSpawner.spawnHouses();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
@@ -65,7 +75,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(200, 200, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2500, 1150, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
