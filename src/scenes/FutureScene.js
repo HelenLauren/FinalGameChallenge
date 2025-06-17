@@ -18,7 +18,8 @@ export default class FutureScene extends Phaser.Scene {
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('portal_center', 'assets/images/portal.png');
-    this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
+    this.load.image('package', 'assets/images/package.png');
+    this.load.audio('medievalMusic', 'assets/audio/medieval_theme.mp3');
   }
 
   create() {

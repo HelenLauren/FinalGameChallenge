@@ -45,6 +45,8 @@ export default class MedievalScene extends Phaser.Scene {
     this.load.image('medievalHouse5', 'assets/images/medieval/medievalHouse5.png');
     this.load.image('medievalHouse6', 'assets/images/medieval/medievalHouse6.png');
     this.load.image('package', 'assets/images/package.png');
+    this.load.audio('medievalMusic', 'assets/audio/medieval_theme.mp3'); //importar o audio, em tds as cenas que nao possuem.
+
   }
 
   create() {

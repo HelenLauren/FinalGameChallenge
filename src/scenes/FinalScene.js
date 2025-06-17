@@ -13,8 +13,10 @@ export default class FinalScene extends Phaser.Scene {
     this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.image('heart_full', 'assets/images/coracaoCheio.png');
-    this.load.image('heart_empty', 'assets/images/coracaoVazio.png');
+    this.load.image('heart_full', 'assets/images/coracaoRosa.png');
+    this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
+    this.load.image('package', 'assets/images/package.png');
+    this.load.audio('medievalMusic', 'assets/audio/medieval_theme.mp3');
   }
 
   create() {
