@@ -50,6 +50,9 @@ export default class MedievalScene extends Phaser.Scene {
   }
 
   create() {
+    this.music = this.sound.add('medievalMusic', { loop: true, volume: 0.4 });
+    this.music.play();
+
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
     if (!personagemSelecionado) {
       this.scene.start('BootScene');
@@ -143,6 +146,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('DinoScene'); //prox fase -----------------
     });
 
@@ -155,6 +159,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.restart();
     });
 
@@ -167,6 +172,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('MenuScene');
     });
 
@@ -221,6 +227,11 @@ export default class MedievalScene extends Phaser.Scene {
         }
         ringObj.sprite.setScale(ringObj.scale);
       });
+    }
+  }
+  shutdown() {
+    if (this.music && this.music.isPlaying) {
+      this.music.stop();
     }
   }
 }

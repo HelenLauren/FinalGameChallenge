@@ -19,10 +19,13 @@ export default class FutureScene extends Phaser.Scene {
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('package', 'assets/images/package.png');
-    this.load.audio('medievalMusic', 'assets/audio/medieval_theme.mp3');
+    this.load.audio('futureMusic', 'assets/audio/future_theme.mp3');
   }
 
   create() {
+    this.music = this.sound.add('futureMusic', { loop: true, volume: 0.4 });
+    this.music.play();
+
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
   if (!personagemSelecionado) {
     this.scene.start('BootScene');
@@ -109,6 +112,7 @@ export default class FutureScene extends Phaser.Scene {
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('FinalScene'); //prox fase -----------------
     });
 
@@ -121,6 +125,7 @@ export default class FutureScene extends Phaser.Scene {
 
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.restart();
     });
 
@@ -133,6 +138,7 @@ export default class FutureScene extends Phaser.Scene {
 
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('MenuScene');
     });
 
@@ -187,6 +193,11 @@ export default class FutureScene extends Phaser.Scene {
         }
         ringObj.sprite.setScale(ringObj.scale);
       });
+    }
+  }
+  shutdown() {
+    if (this.music && this.music.isPlaying) {
+      this.music.stop();
     }
   }
 }

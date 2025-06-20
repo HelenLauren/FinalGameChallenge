@@ -18,10 +18,14 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('portal_center', 'assets/images/portal.png');
-    this.load.image('package', 'https://labs.phaser.io/assets/sprites/crate.png');
+    this.load.image('package', 'assets/images/package.png');
+    this.load.audio('gameMusic', 'assets/audio/game_theme.mp3');
   }
 
   create() {
+    this.music = this.sound.add('gameMusic', { loop: true, volume: 0.4 });
+    this.music.play();
+
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
   if (!personagemSelecionado) {
     this.scene.start('BootScene');
@@ -70,6 +74,11 @@ export default class GameScene extends Phaser.Scene {
         }
       });
     });
+
+    this.events.on('abrirMenuModal', () => {
+      this.abrirMenuModal();
+    });
+
   }
   showLevelCompleteModal() {
     this.modalBackground = this.add.rectangle(
@@ -108,6 +117,7 @@ export default class GameScene extends Phaser.Scene {
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('IceScene'); //prox fase -----------------
     });
 
@@ -120,6 +130,7 @@ export default class GameScene extends Phaser.Scene {
 
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.restart();
     });
 
@@ -132,6 +143,7 @@ export default class GameScene extends Phaser.Scene {
 
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
+      this.music.stop();
       this.scene.start('MenuScene');
     });
 
@@ -142,6 +154,7 @@ export default class GameScene extends Phaser.Scene {
     if (this.modalBackground) this.modalBackground.destroy();
     if (this.modalContainer) this.modalContainer.destroy();
   }
+
   perderVida() {
     if (this.vidas > 0) {
       this.vidas--;
@@ -186,6 +199,11 @@ export default class GameScene extends Phaser.Scene {
         }
         ringObj.sprite.setScale(ringObj.scale);
       });
+    }
+  }
+  shutdown() {
+    if (this.music && this.music.isPlaying) {
+      this.music.stop();
     }
   }
 }
