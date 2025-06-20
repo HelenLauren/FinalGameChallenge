@@ -5,9 +5,9 @@ export default class MenuScene extends Phaser.Scene {
 
   preload() {
     this.load.image('background', 'assets/images/background.png');
-    this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.audio('menu-theme', 'assets/audio/menu-theme.mp3');
   }
 
@@ -133,9 +133,9 @@ export default class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const personagens = [
-      { nome: 'Helen', sprite: 'helen' },
-      { nome: 'Helena', sprite: 'helena' },
-      { nome: 'Raissa', sprite: 'raissa' },
+      { nome: 'Helen', sprite: 'Helen' },
+      { nome: 'Helena', sprite: 'Helena' },
+      { nome: 'Raissa', sprite: 'Raissa' },
     ];
 
     const spacingX = 150;
@@ -213,7 +213,7 @@ export default class MenuScene extends Phaser.Scene {
 
     const centerX = this.cameras.main.centerX;
     const centerY = this.cameras.main.centerY;
-    const bg = this.add.rectangle(centerX, centerY, 500, 350, 0x000000, 0.85)
+    const bg = this.add.rectangle(centerX, centerY, 500, 350, 0x3b2f2f, 0.80)
       .setStrokeStyle(3, 0x81d3fc)
       .setOrigin(0.5);
 

@@ -13,9 +13,9 @@ export default class MedievalScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.spritesheet('helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
-    this.load.spritesheet('raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
@@ -80,7 +80,7 @@ export default class MedievalScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(2500, 1150, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2500, 1050, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
@@ -190,8 +190,8 @@ export default class MedievalScene extends Phaser.Scene {
     }
   }
   spawnPortal() {
-    const x = 180;
-    const y = 200;
+    const x = 200;
+    const y = 350;
     this.portalMain?.destroy();
     this.portalRings?.forEach(r => r.sprite.destroy());
     this.portalRings = [];

@@ -9,7 +9,7 @@ export default class Hud {
     const heartHeight = 20;
     const heartSpacing = 6;
     const screenWidth = scene.cameras.main.width;
-    const hudDepth = 1000;
+    const hudDepth = 9000;
 
     for (let i = 0; i < vidas; i++) {
       const x = margin + i * (heartWidth + heartSpacing);
@@ -30,7 +30,7 @@ export default class Hud {
       fontSize: '16px',
       fill: '#ffffff',
       fontFamily: '"Press Start 2P"',
-      stroke: '#000000',
+      stroke: '#3b2f2f',
       strokeThickness: 2
     }).setScrollFactor(0).setDepth(hudDepth);
 
@@ -40,7 +40,7 @@ export default class Hud {
       backgroundColor: '#5C4033',
       padding: { x: 12, y: 4 },
       fontFamily: '"Press Start 2P"',
-      stroke: '#000',
+      stroke: '#3b2f2f',
       strokeThickness: 2
     }).setScrollFactor(0)
       .setOrigin(1, 0)
@@ -62,76 +62,120 @@ export default class Hud {
     const cam = this.scene.cameras.main;
     const width = cam.width;
     const height = cam.height;
-
-    const centerX = cam.worldView.x + width / 2;
-    const centerY = cam.worldView.y + height / 2;
+    const centerX = width / 2;
+    const centerY = height / 2;
 
     const modalBackgroundDepth = 2000;
     const modalUIdepth = 2001;
 
     this.container.setVisible(false);
-
     this.modalBackground = this.scene.add.rectangle(
-      cam.worldView.x,
-      cam.worldView.y,
-      width,
-      height,
-      0x000000,
-      0.6
-    )
-      .setOrigin(0, 0)
+      0, 0,
+      width, height,
+      0xa1866f, 0.4
+    ).setOrigin(0, 0)
       .setScrollFactor(0)
       .setDepth(modalBackgroundDepth);
 
-    this.modalContainer = this.scene.add.container(centerX, centerY)
-      .setScrollFactor(0)
-      .setDepth(modalUIdepth);
+    const panel = this.scene.add.rectangle(0, 0, 360, 240, 0x3b2f2f, 0.8)
+      .setStrokeStyle(2, 0x3b2f2f)
+      .setDepth(modalUIdepth)
+      .setScrollFactor(0);
 
-    const panel = this.scene.add.rectangle(0, 0, 320, 180, 0xffffff, 1)
-      .setStrokeStyle(2, 0x000000)
-      .setDepth(modalUIdepth);
-
-    const title = this.scene.add.text(0, -60, 'Menu de Pausa', {
-      fontSize: '24px',
-      color: '#000',
-      fontStyle: 'bold',
+    const title = this.scene.add.text(0, -90, 'Menu de Pausa', {
+      fontSize: '16px',
+      color: '#000000',
       fontFamily: '"Press Start 2P"',
-    }).setOrigin(0.5).setDepth(modalUIdepth);
+      align: 'center',
+      stroke: '#3b2f2f',
+      strokeThickness: 2
+    }).setOrigin(0.5)
+      .setDepth(modalUIdepth)
+      .setScrollFactor(0);
 
-    const btnRestart = this.scene.add.text(0, -10, 'Reiniciar Fase', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#e0e0e0',
-      padding: { x: 10, y: 5 },
-      fontFamily: '"Press Start 2P"',
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(modalUIdepth);
-
-    btnRestart.on('pointerdown', () => {
+    const btnRestart = this.createMenuButton('Reiniciar Fase', -30, () => {
       this.fecharMenuModal();
       this.scene.music?.stop?.();
       this.scene.scene.restart();
     });
 
-    const btnMenu = this.scene.add.text(0, 50, 'Voltar ao Menu', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#e0e0e0',
-      padding: { x: 10, y: 5 },
-      fontFamily: '"Press Start 2P"',
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true }).setDepth(modalUIdepth);
-
-    btnMenu.on('pointerdown', () => {
+    const btnMenu = this.createMenuButton('Voltar ao Menu', 30, () => {
       this.fecharMenuModal();
       this.scene.music?.stop?.();
       this.scene.scene.start('MenuScene');
     });
 
-    this.modalContainer.add([panel, title, btnRestart, btnMenu]);
+    const btnClose = this.scene.add.text(160, -110, 'X', {
+      fontSize: '12px',
+      fontFamily: '"Press Start 2P"',
+      color: '#ffffff',
+      backgroundColor: '#8B0000',
+      padding: { x: 6, y: 4 },
+      align: 'center',
+      stroke: '#3b2f2f',
+      strokeThickness: 2,
+    }).setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(modalUIdepth)
+      .setScrollFactor(0);
+
+    btnClose.on('pointerdown', () => this.fecharMenuModal());
+    btnClose.on('pointerover', () => {
+      btnClose.setStyle({ backgroundColor: '#AA0000', color: '#ffffaa' });
+    });
+    btnClose.on('pointerout', () => {
+      btnClose.setStyle({ backgroundColor: '#8B0000', color: '#ffffff' });
+    });
+
+    this.modalContainer = this.scene.add.container(centerX, centerY, [
+      panel, title, btnRestart, btnMenu, btnClose
+    ]).setScrollFactor(0)
+      .setDepth(modalUIdepth);
   }
 
   fecharMenuModal() {
     this.modalBackground?.destroy();
     this.modalContainer?.destroy();
     this.container.setVisible(true);
+  }
+
+  createMenuButton(text, y, callback) {
+    const btn = this.scene.add.text(0, y, text, {
+      fontSize: '12px',
+      fontFamily: '"Press Start 2P"',
+      color: '#ffffff',
+      backgroundColor: '#3b2f2f',
+      padding: { x: 20, y: 12 },
+      align: 'center',
+      fixedWidth: 240,
+      stroke: '#3b2f2f',
+      strokeThickness: 4,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000',
+        blur: 0,
+        fill: true,
+      },
+    }).setOrigin(0.5)
+      .setInteractive({ useHandCursor: true })
+      .setDepth(2002)
+      .setScrollFactor(0);
+
+    btn.on('pointerdown', callback);
+    btn.on('pointerover', () => {
+      btn.setStyle({
+        backgroundColor: '#5c4033',
+        color: '#ffffaa',
+      });
+    });
+    btn.on('pointerout', () => {
+      btn.setStyle({
+        backgroundColor: '#3b2f2f',
+        color: '#ffffff',
+      });
+    });
+
+    return btn;
   }
 }
