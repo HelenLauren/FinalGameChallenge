@@ -1,7 +1,7 @@
 # FinalGameChallenge  
 Projeto final da disciplina **HTML5 Canvas e Games** – 3º período
 
-> 📅 Entrega: **15/06/2025 (domingo)**  
+> 📅 Entrega: **21/06/2025 (sábado)**  
 > ⚠️ *Projeto em desenvolvimento. Algumas funcionalidades podem mudar ao longo do processo.*
 
 ## 🎮 Visão Geral
