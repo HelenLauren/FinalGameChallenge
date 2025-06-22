@@ -1,3 +1,7 @@
+import Player from '../../entidades/Player.js';
+import Hud from '../../ui/Hud.js';
+import GameSpawner from '../ambientacao/GameSpawner.js';
+
 export default class FinalScene extends Phaser.Scene {
   constructor() {
     super('FinalScene');
@@ -13,14 +17,40 @@ export default class FinalScene extends Phaser.Scene {
     this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('package', 'assets/images/package.png');
-    this.load.audio('finalMusic', 'assets/audio/final_theme.mp3');
+    this.load.audio('gameMusic', 'assets/audio/game_theme.mp3');
+    this.load.image('Broken_tree1', 'assets/images/trees/Broken_tree1.png');
+    this.load.image('Broken_tree3', 'assets/images/trees/Broken_tree3.png');
+    this.load.image('Tree1', 'assets/images/trees/Tree1.png');
+    this.load.image('Tree2', 'assets/images/trees/Tree2.png');
+    this.load.image('Tree3', 'assets/images/trees/Tree3.png');
+    this.load.image('fruitTree1', 'assets/images/trees/Fruit_tree1.png');
+    this.load.image('fruitTree2', 'assets/images/trees/Fruit_tree2.png');
+    this.load.image('fruitTree3', 'assets/images/trees/Fruit_tree3.png');
+    this.load.image('bush21', 'assets/images/bush/Bush_simple2_1.png');
+    this.load.image('bush22', 'assets/images/bush/Bush_simple2_2.png');
+    this.load.image('bush23', 'assets/images/bush/Bush_simple2_3.png');
+    this.load.image('blueflowerbush1', 'assets/images/bush/Bush_blue_flowers1.png');
+    this.load.image('blueflowerbush2', 'assets/images/bush/Bush_blue_flowers2.png');
+    this.load.image('orangeflowerbush1', 'assets/images/bush/Bush_orange_flowers1.png');
+    this.load.image('orangeflowerbush2', 'assets/images/bush/Bush_orange_flowers2.png');
+    this.load.image('pinkflowerbush1', 'assets/images/bush/Bush_pink_flowers1.png');
+    this.load.image('pinkflowerbush2', 'assets/images/bush/Bush_pink_flowers2.png');
+    this.load.image('pinkflowerbush3', 'assets/images/bush/Bush_pink_flowers3.png');
+    this.load.image('medievalHouse4', 'assets/images/medieval/medievalHouse4.png');
+    this.load.image('medievalHouse5', 'assets/images/medieval/medievalHouse5.png');
+    this.load.image('medievalHouse6', 'assets/images/medieval/medievalHouse6.png');
+    this.load.image('medievalHouse7', 'assets/images/medieval/medievalHouse7.png');
+    this.load.image('medievalHouse8', 'assets/images/medieval/medievalHouse8.png');
+    this.load.image('medievalHouse9', 'assets/images/medieval/medievalHouse9.png');
+  
   }
 
   create() {
-    this.music = this.sound.add('finalMusic', { loop: true, volume: 0.4 });
+    this.music = this.sound.add('gameMusic', { loop: true, volume: 0.4 });
     this.music.play();
 
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
@@ -37,63 +67,30 @@ export default class FinalScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-    this.player = this.matter.add.sprite(500, 400, personagemSelecionado);
-    this.player.setScale(2);
-    this.player.setFixedRotation();
-    this.player.setFrictionAir(0.2);
-    this.player.setData('tag', 'player');
 
-    //animações do personagem:
-    this.anims.create({
-    key: 'front',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
-    frameRate: 5,
-    repeat: -1
-  });
-    this.anims.create({
-    key: 'left',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [12, 13, 14, 15, 16]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'right',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [24, 25, 26, 27, 28]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-    key: 'back',
-    frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [36]}),
-    frameRate: 5,
-    repeat: -1
-  });
-  this.anims.create({
-  key: 'idle',
-  frames: this.anims.generateFrameNumbers(personagemSelecionado, { frames: [0, 1, 2, 3, 4]}),
-  frameRate: 1,
-  repeat: -1
-});
+    const gameSpawner = new GameSpawner(this);
+    gameSpawner.spawnTrees?.();
+    gameSpawner.spawnBush?.();
+    gameSpawner.spawnHouses?.();
+
+    this.player = new Player(this, 500, 400, personagemSelecionado);
+    this.hud = new Hud(this, personagemSelecionado);
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(200, 200, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2500, 1050, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
     this.portalRings = [];
-    this.portalRays = [];
 
     this.matter.world.on('collisionstart', (event) => {
       event.pairs.forEach((pair) => {
-        const bodyA = pair.bodyA;
-        const bodyB = pair.bodyB;
-
-        const tagA = bodyA.gameObject?.getData?.('tag');
-        const tagB = bodyB.gameObject?.getData?.('tag');
+        const tagA = pair.bodyA.gameObject?.getData?.('tag');
+        const tagB = pair.bodyB.gameObject?.getData?.('tag');
 
         if ([tagA, tagB].includes('player') && [tagA, tagB].includes('package')) {
           this.package.destroy();
@@ -107,87 +104,6 @@ export default class FinalScene extends Phaser.Scene {
         }
       });
     });
-
-    // === HUD de vidas ===
-    this.vidas = 3;
-    this.coracoes = [];
-    const margin = 10;
-
-    for (let i = 0; i < 3; i++) {
-      const coracao = this.add.image(margin + i * 34, margin, 'heart_full')
-        .setScrollFactor(0)
-        .setDisplaySize(50, 50)
-        .setOrigin(0, 0);
-      this.coracoes.push(coracao);
-    }
-
-    this.nomeTexto = this.add.text(margin + 3 * 34 + 10, margin + 6, personagemSelecionado, {
-      fontSize: '16px',
-      fill: '#fff',
-      fontFamily: '"Press Start 2P"',
-      stroke: '#000',
-      strokeThickness: 2
-    }).setScrollFactor(0);
-
-    // === Botão de menu canto esquerdo ===
-    this.btnMenu = this.add.text(margin, margin + 60, 'Menu', {
-      fontSize: '20px',
-      color: '#fff',
-      backgroundColor: '#5C4033',
-      padding: { x: 12, y: 6 },
-      fontFamily: '"Press Start 2P"',
-      stroke: '#000',
-      strokeThickness: 2
-    })
-    .setScrollFactor(0)
-    .setOrigin(0, 0)
-    .setInteractive({ useHandCursor: true });
-
-    this.btnMenu.on('pointerdown', () => {
-      this.confirmarVoltarMenu();
-    });
-
-  }
-  spawnPortal() {
-    const x = 180;
-    const y = 200;
-
-    if (this.portalMain) {
-      this.portalMain.destroy();
-      this.portalRings.forEach(r => r.sprite.destroy());
-      this.portalRays.forEach(r => r.graphics.destroy());
-      this.portalRings = [];
-      this.portalRays = [];
-    }
-
-    this.portalMain = this.add.circle(x, y, 30, 0xED3FFF, 0.4);
-    this.matter.add.gameObject(this.portalMain, {
-      shape: { type: 'circle', radius: 30 },
-      isStatic: true,
-      isSensor: true,
-    });
-    this.portalMain.setData('tag', 'portal');
-
-    for (let i = 1; i <= 3; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.15);
-      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
-    }
-
-    const rayCount = 12;
-    const rayLength = 10;
-    for (let i = 0; i < rayCount; i++) {
-      const angle = Phaser.Math.DegToRad((360 / rayCount) * i);
-      const ray = this.add.graphics();
-      ray.lineStyle(2, 0xDF9CFF, 0.8);
-      ray.beginPath();
-      ray.moveTo(0, 0);
-      ray.lineTo(rayLength, 0);
-      ray.strokePath();
-      ray.x = x + 30 * Math.cos(angle);
-      ray.y = y + 30 * Math.sin(angle);
-      ray.rotation = angle;
-      this.portalRays.push({ graphics: ray, angle });
-    }
   }
 
   showLevelCompleteModal() {
@@ -205,9 +121,7 @@ export default class FinalScene extends Phaser.Scene {
       this.cameras.main.worldView.y + this.cameras.main.height / 2
     ).setScrollFactor(0);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1);
-    panel.setStrokeStyle(2, 0x000000);
-
+    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', {
       fontSize: '24px',
       color: '#000',
@@ -223,12 +137,12 @@ export default class FinalScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
-      this.scene.start('MenuScene'); //prox fase -----------------
+      this.scene.start('IceScene');
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
@@ -236,7 +150,7 @@ export default class FinalScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
@@ -249,7 +163,7 @@ export default class FinalScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
@@ -261,44 +175,51 @@ export default class FinalScene extends Phaser.Scene {
   }
 
   destroyModal() {
-    if (this.modalBackground) this.modalBackground.destroy();
-    if (this.modalContainer) this.modalContainer.destroy();
+    this.modalBackground?.destroy();
+    this.modalContainer?.destroy();
   }
-  perderVida() {
-    if (this.vidas > 0) {
-      this.vidas--;
-      this.coracoes[this.vidas].setTexture('heart_empty');
+
+  spawnPortal() {
+    const x = 200;
+    const y = 350;
+
+    this.portalMain?.destroy();
+    this.portalRings.forEach(r => r.sprite.destroy());
+    this.portalRings = [];
+
+    this.portalMain = this.add.image(x, y, 'portal_center').setScale(1).setAlpha(0.9);
+    this.matter.add.gameObject(this.portalMain, {
+      shape: { type: 'circle', radius: 30 },
+      isStatic: true,
+      isSensor: true,
+    });
+    this.portalMain.setData('tag', 'portal');
+
+    for (let i = 1; i <= 2; i++) {
+      const ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
+      this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
   }
 
   update() {
-    this.player.updateMovement(this.cursors);
-    // Animações do portal
-    if (this.portalRings) {
-      this.portalRings.forEach(ringObj => {
-        if (ringObj.growing) {
-          ringObj.scale += 0.01;
-          if (ringObj.scale >= 1.0) ringObj.growing = false;
-        } else {
-          ringObj.scale -= 0.01;
-          if (ringObj.scale <= 1) ringObj.growing = true;
-        }
-        ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
+    this.player?.updateMovement?.(this.cursors);
 
-    if (this.portalRays && this.portalMain) {
-      const rotationSpeed = 0.02;
-      this.portalRays.forEach(rayObj => {
-        rayObj.angle += rotationSpeed;
-        rayObj.graphics.x = this.portalMain.x + 30 * Math.cos(rayObj.angle);
-        rayObj.graphics.y = this.portalMain.y + 30 * Math.sin(rayObj.angle);
-        rayObj.graphics.rotation = rayObj.angle;
-      });
-    }
+    this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
+
+    this.portalRings.forEach(ring => {
+      if (ring.growing) {
+        ring.scale += 0.01;
+        if (ring.scale >= 1.0) ring.growing = false;
+      } else {
+        ring.scale -= 0.01;
+        if (ring.scale <= 1) ring.growing = true;
+      }
+      ring.sprite.setScale(ring.scale);
+    });
   }
+
   shutdown() {
-    if (this.music && this.music.isPlaying) {
+    if (this.music?.isPlaying) {
       this.music.stop();
     }
   }
