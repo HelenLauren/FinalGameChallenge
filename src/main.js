@@ -1,7 +1,7 @@
 import MenuScene from './scenes/MenuScene.js';
 import GameScene from './scenes/GameScene.js';
 import IceScene from './scenes/IceScene.js';
-import EightiesScene from './scenes/EightiesScene.js';
+import SeaScene from './scenes/SeaScene.js';
 import MedievalScene from './scenes/MedievalScene.js';
 import DinoScene from './scenes/DinoScene.js';
 import FutureScene from './scenes/FutureScene.js';
@@ -18,7 +18,7 @@ const config = {
       gravity: { y: 0 }
     }
   },
-  scene: [MenuScene, GameScene, IceScene, EightiesScene, MedievalScene, DinoScene, FutureScene, FinalScene]
+  scene: [MenuScene, GameScene, IceScene, SeaScene, MedievalScene, DinoScene, FutureScene, FinalScene]
 };
 
 const game = new Phaser.Game(config);

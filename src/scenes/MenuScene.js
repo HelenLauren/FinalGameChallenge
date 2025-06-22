@@ -4,6 +4,7 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   preload() {
+    // Só carrega assets do menu (background, personagens e música do menu)
     this.load.image('background', 'assets/images/background.png');
     this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
@@ -12,35 +13,34 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   create() {
-  this.centerX = this.cameras.main.width / 2;
-  this.centerY = this.cameras.main.height / 2;
+    this.centerX = this.cameras.main.width / 2;
+    this.centerY = this.cameras.main.height / 2;
 
-  this.backgroundImage = this.add.image(this.centerX, this.centerY, 'background')
-    .setOrigin(0.5)
-    .setDepth(-1)
-    .setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    this.backgroundImage = this.add.image(this.centerX, this.centerY, 'background')
+      .setOrigin(0.5)
+      .setDepth(-1)
+      .setDisplaySize(this.cameras.main.width, this.cameras.main.height);
 
+    if (!localStorage.getItem('progressoFases')) {
+      localStorage.setItem('progressoFases', JSON.stringify({ 1: true }));
+    }
 
-  if (!localStorage.getItem('progressoFases')) {
-    localStorage.setItem('progressoFases', JSON.stringify({ 1: true }));
+    this.createMainMenu();
+    this.createSelecionarPersonagemSection();
+    this.createSobreSection();
+    this.createComoJogarSection();
+    this.createSelecionarFaseSection();
+
+    this.showMenu();
+
+    if (!this.sound.get('menu-theme')) {
+      this.menuMusic = this.sound.add('menu-theme', {
+        loop: true,
+        volume: 0.5
+      });
+      this.menuMusic.play();
+    }
   }
-  //seções do menu
-  this.createMainMenu(); 
-  this.createSelecionarPersonagemSection();
-  this.createSobreSection();
-  this.createComoJogarSection();
-  this.createSelecionarFaseSection();
-
-
-  this.showMenu();
-  if (!this.sound.get('menu-theme')) {
-  this.menuMusic = this.sound.add('menu-theme', {
-    loop: true,
-    volume: 0.5
-  });
-  this.menuMusic.play();
-}
-}
 
   createMainMenu() {
     this.menuContainer = this.add.container(this.centerX, this.centerY - 80);
@@ -79,46 +79,46 @@ export default class MenuScene extends Phaser.Scene {
       }
     });
 
-
     this.menuContainer.add([title, btnJogar, btnSelecionarFase, btnComoJogar, btnSobre, btnResetar]);
   }
 
   createMenuButton(text, y, callback) {
-  const btn = this.add.text(0, y, text, {
-    fontSize: '12px',
-    fontFamily: '"Press Start 2P"',
-    color: '#ffffff',
-    backgroundColor: '#3b2f2f',
-    padding: { x: 20, y: 12 },
-    align: 'center',
-    fixedWidth: 240,
-    shadow: {
-      offsetX: 2,
-      offsetY: 2,
-      color: '#000',
-      blur: 0,
-      fill: true,
-    },
-    stroke: '#000000',
-    strokeThickness: 4,
-  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-  btn.on('pointerdown', callback);
-  btn.on('pointerover', () => {
-    btn.setStyle({
-      backgroundColor: '#5c4033',
-      color: '#ffffaa',
-    });
-  });
-  btn.on('pointerout', () => {
-    btn.setStyle({
-      backgroundColor: '#3b2f2f',
+    const btn = this.add.text(0, y, text, {
+      fontSize: '12px',
+      fontFamily: '"Press Start 2P"',
       color: '#ffffff',
-    });
-  });
+      backgroundColor: '#3b2f2f',
+      padding: { x: 20, y: 12 },
+      align: 'center',
+      fixedWidth: 240,
+      shadow: {
+        offsetX: 2,
+        offsetY: 2,
+        color: '#000',
+        blur: 0,
+        fill: true,
+      },
+      stroke: '#000000',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-  return btn;
-}
+    btn.on('pointerdown', callback);
+    btn.on('pointerover', () => {
+      btn.setStyle({
+        backgroundColor: '#5c4033',
+        color: '#ffffaa',
+      });
+    });
+    btn.on('pointerout', () => {
+      btn.setStyle({
+        backgroundColor: '#3b2f2f',
+        color: '#ffffff',
+      });
+    });
+
+    return btn;
+  }
+
   createSelecionarPersonagemSection() {
     this.selecionarPersonagemContainer = this.add.container(this.centerX, this.centerY);
 
@@ -194,6 +194,7 @@ export default class MenuScene extends Phaser.Scene {
     this.selecionarPersonagemContainer.add(btnVoltar);
     this.selecionarPersonagemContainer.setVisible(false);
   }
+
   startPreview(personagemKey) {
     this.selectedCharacter = personagemKey;
 
@@ -230,6 +231,7 @@ export default class MenuScene extends Phaser.Scene {
       strokeThickness: 2,
       align: 'center'
     }).setOrigin(0.5);
+
     const btnVoltarPreview = this.createMenuButton('Voltar', centerY + 150 - centerY, () => {
       this.previewContainer.destroy();
       this.selecionarPersonagemContainer.setVisible(true);
@@ -243,12 +245,28 @@ export default class MenuScene extends Phaser.Scene {
       enterText,
       btnVoltarPreview
     ]);
+
     this.input.keyboard.once('keydown-ENTER', () => {
       localStorage.setItem('personagemSelecionado', personagemKey);
       if (this.menuMusic) {
         this.menuMusic.stop();
       }
-      this.scene.start('GameScene');
+      // Aqui, chama a LoaderScene, passando assets da GameScene + personagem selecionado
+      this.scene.start('LoaderScene', {
+        nextScene: 'GameScene',
+        assets: [
+          { type: 'spritesheet', key: 'Helen', path: 'entidades/helen_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'spritesheet', key: 'Helena', path: 'entidades/helena_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'spritesheet', key: 'Raissa', path: 'entidades/raissa_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'image', key: 'portal_center', path: 'assets/images/portal.png' },
+          { type: 'image', key: 'heart_full', path: 'assets/images/coracaoRosa.png' },
+          { type: 'image', key: 'heart_empty', path: 'assets/images/coracaoCinza.PNG' },
+          { type: 'image', key: 'package', path: 'assets/images/package.png' },
+          { type: 'audio', key: 'gameMusic', path: 'assets/audio/game_theme.mp3' },
+          // adicione outros assets que o GameScene usar, se precisar
+        ],
+        personagemSelecionado: personagemKey,
+      });
     });
   }
 
@@ -282,8 +300,8 @@ Desenvolvido por:
       align: 'left',
       stroke: '#000',
       strokeThickness: 2,
-      wordWrap: { width: 720 }
-    }).setOrigin(0.5);
+      wordWrap: { width: 700 }
+    }).setOrigin(0.5, 0);
 
     const btnVoltar = this.createMenuButton('Voltar', 150, () => {
       this.showMenu();
@@ -299,31 +317,31 @@ Desenvolvido por:
     const bg = this.add.rectangle(0, 0, 760, 400, 0x3b2f2f, 0.8);
     const title = this.add.text(0, -170, 'Como Jogar', {
       fontSize: '20px',
-      fontFamily:'"Press Start 2P"',
+      fontFamily: '"Press Start 2P"',
       color: '#81d3fc',
       fontStyle: 'bold',
       stroke: '#000',
       strokeThickness: 2
     }).setOrigin(0.5);
 
-    const instrucoes = `
-- Use as setas para movimentar o jogador.
-- Ache e pegue o pacote.
-- Entre no portal para terminar suas entregas.
-- Complete as fases para desbloquear as próximas.
+    const texto = `
+- Use as setas ou WASD para movimentar o personagem.
+- Pegue o pacote para desbloquear o portal.
+- Vá até o portal para completar a fase.
+- Evite os inimigos e obstáculos.
+- Você tem 3 vidas por fase.
 
-- Divirta-se!
-    `;
+Bom jogo!`;
 
-    const text = this.add.text(0, -60, instrucoes, {
+    const text = this.add.text(0, -50, texto, {
       fontSize: '15px',
-      fontFamily:'"Press Start 2P"',
+      fontFamily: '"Press Start 2P"',
       color: '#ffffff',
       align: 'left',
       stroke: '#000',
       strokeThickness: 2,
-      wordWrap: { width: 720 }
-    }).setOrigin(0.5);
+      wordWrap: { width: 700 }
+    }).setOrigin(0.5, 0);
 
     const btnVoltar = this.createMenuButton('Voltar', 150, () => {
       this.showMenu();
@@ -337,8 +355,6 @@ Desenvolvido por:
     this.selecionarFaseContainer = this.add.container(this.centerX, this.centerY);
 
     const bg = this.add.rectangle(0, 0, 760, 400, 0x3b2f2f, 0.8).setOrigin(0.5);
-    this.selecionarFaseContainer.add(bg);
-
     const title = this.add.text(0, -170, 'Selecionar Fase', {
       fontSize: '20px',
       fontFamily: '"Press Start 2P"',
@@ -347,23 +363,30 @@ Desenvolvido por:
       stroke: '#000',
       strokeThickness: 2
     }).setOrigin(0.5);
-    this.selecionarFaseContainer.add(title);
 
-    this.fases = [
-      { nome: 'Fase 1', key: 'GameScene' },
-      { nome: 'Fase 2', key: 'IceScene' },
-      { nome: 'Fase 3', key: 'EightiesScene' },
-      { nome: 'Fase 4', key: 'MedievalScene' },
-      { nome: 'Fase 5', key: 'DinoScene' },
-      { nome: 'Fase 6', key: 'FutureScene' },
-      { nome: 'Fase Final', key: 'FinalScene' }
-    ];
+    this.selecionarFaseContainer.add([bg, title]);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[1] = true;
-    localStorage.setItem('progressoFases', JSON.stringify(progresso));
+    progresso[1] = true; // desbloqueia sempre a fase 1
 
-    this.faseButtons = [];
+    // Definindo fases e seus assets (exemplo com GameScene, pode adicionar mais)
+    this.fases = [
+      {
+        nome: 'Fase 1',
+        key: 'GameScene',
+        assets: [
+          { type: 'spritesheet', key: 'Helen', path: 'entidades/helen_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'spritesheet', key: 'Helena', path: 'entidades/helena_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'spritesheet', key: 'Raissa', path: 'entidades/raissa_idle.png', config: { frameWidth: 64, frameHeight: 64 } },
+          { type: 'image', key: 'portal_center', path: 'assets/images/portal.png' },
+          { type: 'image', key: 'heart_full', path: 'assets/images/coracaoRosa.png' },
+          { type: 'image', key: 'heart_empty', path: 'assets/images/coracaoCinza.PNG' },
+          { type: 'image', key: 'package', path: 'assets/images/package.png' },
+          { type: 'audio', key: 'gameMusic', path: 'assets/audio/game_theme.mp3' },
+        ]
+      },
+      // você pode adicionar as outras fases aqui no mesmo formato
+    ];
 
     const colCount = 3;
     const btnWidth = 170;
@@ -371,6 +394,8 @@ Desenvolvido por:
     const gapX = 30;
     const gapY = 20;
     const startY = -100;
+
+    this.faseButtons = [];
 
     this.fases.forEach((fase, idx) => {
       const row = Math.floor(idx / colCount);
@@ -383,10 +408,17 @@ Desenvolvido por:
       const y = startY + row * (btnHeight + gapY);
 
       const btn = this.createMenuButton(fase.nome, y, () => {
+        if (!progresso[idx + 1]) return; // trava se não liberado
+
         if (this.menuMusic) {
           this.menuMusic.stop();
         }
-        this.scene.start(fase.key);
+
+        // Chama LoaderScene passando assets e próxima cena
+        this.scene.start('LoaderScene', {
+          nextScene: fase.key,
+          assets: fase.assets
+        });
       });
       btn.x = x;
 
@@ -402,42 +434,48 @@ Desenvolvido por:
     const btnVoltar = this.createMenuButton('Voltar', 140, () => {
       this.showMenu();
     });
-    this.selecionarFaseContainer.add(btnVoltar);
 
+    this.selecionarFaseContainer.add(btnVoltar);
     this.selecionarFaseContainer.setVisible(false);
   }
 
   showMenu() {
     this.menuContainer.setVisible(true);
+    this.selecionarPersonagemContainer.setVisible(false);
     this.sobreContainer.setVisible(false);
     this.comoJogarContainer.setVisible(false);
     this.selecionarFaseContainer.setVisible(false);
-    this.selecionarPersonagemContainer.setVisible(false);
   }
+
   showSelecionarPersonagem() {
     this.menuContainer.setVisible(false);
+    this.selecionarPersonagemContainer.setVisible(true);
     this.sobreContainer.setVisible(false);
     this.comoJogarContainer.setVisible(false);
     this.selecionarFaseContainer.setVisible(false);
-    this.selecionarPersonagemContainer.setVisible(true);
   }
-  showSelecionarFaseSection() {
-    this.menuContainer.setVisible(false);
-    this.sobreContainer.setVisible(false);
-    this.comoJogarContainer.setVisible(false);
-    this.selecionarFaseContainer.setVisible(true);
-    this.selecionarPersonagemContainer.setVisible(false);
-  }
+
   showSobreSection() {
     this.menuContainer.setVisible(false);
+    this.selecionarPersonagemContainer.setVisible(false);
     this.sobreContainer.setVisible(true);
     this.comoJogarContainer.setVisible(false);
     this.selecionarFaseContainer.setVisible(false);
   }
+
   showComoJogarSection() {
     this.menuContainer.setVisible(false);
+    this.selecionarPersonagemContainer.setVisible(false);
     this.sobreContainer.setVisible(false);
     this.comoJogarContainer.setVisible(true);
     this.selecionarFaseContainer.setVisible(false);
+  }
+
+  showSelecionarFaseSection() {
+    this.menuContainer.setVisible(false);
+    this.selecionarPersonagemContainer.setVisible(false);
+    this.sobreContainer.setVisible(false);
+    this.comoJogarContainer.setVisible(false);
+    this.selecionarFaseContainer.setVisible(true);
   }
 }

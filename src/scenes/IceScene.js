@@ -135,7 +135,7 @@ export default class IceScene extends Phaser.Scene {
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
-      this.scene.start('EightiesScene');
+      this.scene.start('SeaScene');
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
