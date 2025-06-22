@@ -40,10 +40,10 @@ export default class IceSpawner {
     ];
 
     this.ruinPositions = [
-      { x: 1000, y: 1100 }, { x: 1050, y: 1140 },
-      { x: 1800, y: 1000 }, { x: 1850, y: 1040 },
-      { x: 2200, y: 1250 }, { x: 2250, y: 1290 },
-      { x: 2600, y: 1180 }, { x: 2650, y: 1220 }
+      { x: 600, y: 800 }, { x: 900, y: 900 },
+      { x: 1300, y: 1000 }, { x: 1500, y: 1100 },
+      { x: 1900, y: 900 }, { x: 2100, y: 1000 },
+      { x: 2500, y: 1100 }, { x: 2700, y: 1200 }
     ];
 
     this.blockedAreas = [
@@ -198,7 +198,7 @@ export default class IceSpawner {
         const scale = Phaser.Math.FloatBetween(1.3, 1.6);
         const sprite = this.scene.add.image(x, y, key).setScale(scale).setOrigin(0.5, 1);
         sprite.setDepth(sprite.y);
-        this.blockedAreas.push({ x, y, radius: 80 });
+        this.blockedAreas.push({ x, y, radius: 100 });
         placed++;
       }
     }
@@ -213,26 +213,34 @@ export default class IceSpawner {
       if (!this.isPositionBlocked(x, y)) {
         const key = Phaser.Utils.Array.GetRandom(this.crystalSprites);
         const scale = Phaser.Math.FloatBetween(1.4, 1.8);
-        this.addStaticAsset(x, y, key, scale, { widthFactor: 0.12, heightFactor: 0.12 });
+        this.addStaticAsset(x, y, key, scale, { widthFactor: 0.06, heightFactor: 0.02 });
       }
     }
   }
 
   spawnRuins() {
-    const margin = 120;
+    const used = [];
 
-    for (let i = 0; i < this.ruinPositions.length; i++) {
-      const { x, y } = this.ruinPositions[i];
-      if (
-        x < margin || x > this.worldWidth - margin ||
-        y < margin || y > this.worldHeight - margin ||
-        this.isPositionBlocked(x, y)
-      ) continue;
+    this.ruinPositions.forEach((basePos, i) => {
+      let { x, y } = basePos;
+      let tentativas = 0;
+      const maxTentativas = 5;
+      let colocado = false;
 
-      const key = this.ruinSprites[i % this.ruinSprites.length];
-      const scale = 2;
-      this.addStaticAsset(x, y, key, scale, { widthFactor: 0.3, heightFactor: 0.2 });
-    }
+      while (tentativas < maxTentativas && !colocado) {
+        if (!this.isPositionBlocked(x, y) && !this.isPositionTaken(x, y, used, 80)) {
+          const key = this.ruinSprites[i % this.ruinSprites.length];
+          const scale = 2;
+          this.addStaticAsset(x, y, key, scale, { widthFactor: 0.3, heightFactor: 0.2 });
+          used.push({ x, y });
+          colocado = true;
+        } else {
+          x += Phaser.Math.Between(-100, 100);
+          y += Phaser.Math.Between(-100, 100);
+          tentativas++;
+        }
+      }
+    });
   }
 
   spawnAll() {

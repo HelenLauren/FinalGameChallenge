@@ -1,5 +1,7 @@
 import Player from '../../entidades/Player.js';
 import Hud from '../../ui/Hud.js';
+import GameSpawner from '../ambientacao/GameSpawner.js';
+
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
@@ -15,11 +17,36 @@ export default class GameScene extends Phaser.Scene {
     this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
-    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('package', 'assets/images/package.png');
     this.load.audio('gameMusic', 'assets/audio/game_theme.mp3');
+    this.load.image('Broken_tree1', 'assets/images/trees/Broken_tree1.png');
+    this.load.image('Broken_tree3', 'assets/images/trees/Broken_tree3.png');
+    this.load.image('Tree1', 'assets/images/trees/Tree1.png');
+    this.load.image('Tree2', 'assets/images/trees/Tree2.png');
+    this.load.image('Tree3', 'assets/images/trees/Tree3.png');
+    this.load.image('fruitTree1', 'assets/images/trees/Fruit_tree1.png');
+    this.load.image('fruitTree2', 'assets/images/trees/Fruit_tree2.png');
+    this.load.image('fruitTree3', 'assets/images/trees/Fruit_tree3.png');
+    this.load.image('bush21', 'assets/images/bush/Bush_simple2_1.png');
+    this.load.image('bush22', 'assets/images/bush/Bush_simple2_2.png');
+    this.load.image('bush23', 'assets/images/bush/Bush_simple2_3.png');
+    this.load.image('blueflowerbush1', 'assets/images/bush/Bush_blue_flowers1.png');
+    this.load.image('blueflowerbush2', 'assets/images/bush/Bush_blue_flowers2.png');
+    this.load.image('orangeflowerbush1', 'assets/images/bush/Bush_orange_flowers1.png');
+    this.load.image('orangeflowerbush2', 'assets/images/bush/Bush_orange_flowers2.png');
+    this.load.image('pinkflowerbush1', 'assets/images/bush/Bush_pink_flowers1.png');
+    this.load.image('pinkflowerbush2', 'assets/images/bush/Bush_pink_flowers2.png');
+    this.load.image('pinkflowerbush3', 'assets/images/bush/Bush_pink_flowers3.png');
+    this.load.image('medievalHouse4', 'assets/images/medieval/medievalHouse4.png');
+    this.load.image('medievalHouse5', 'assets/images/medieval/medievalHouse5.png');
+    this.load.image('medievalHouse6', 'assets/images/medieval/medievalHouse6.png');
+    this.load.image('medievalHouse7', 'assets/images/medieval/medievalHouse7.png');
+    this.load.image('medievalHouse8', 'assets/images/medieval/medievalHouse8.png');
+    this.load.image('medievalHouse9', 'assets/images/medieval/medievalHouse9.png');
+  
   }
 
   create() {
@@ -27,10 +54,11 @@ export default class GameScene extends Phaser.Scene {
     this.music.play();
 
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
-  if (!personagemSelecionado) {
-    this.scene.start('BootScene');
-    return;
-  }
+    if (!personagemSelecionado) {
+      this.scene.start('BootScene');
+      return;
+    }
+
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
@@ -39,6 +67,12 @@ export default class GameScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
+
+    const gameSpawner = new GameSpawner(this);
+    gameSpawner.spawnTrees?.();
+    gameSpawner.spawnBush?.();
+    gameSpawner.spawnHouses?.();
+
     this.player = new Player(this, 500, 400, personagemSelecionado);
     this.hud = new Hud(this, personagemSelecionado);
 
@@ -47,20 +81,16 @@ export default class GameScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(200, 200, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2500, 1050, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
     this.portalRings = [];
-    this.portalRays = [];
 
     this.matter.world.on('collisionstart', (event) => {
       event.pairs.forEach((pair) => {
-        const bodyA = pair.bodyA;
-        const bodyB = pair.bodyB;
-
-        const tagA = bodyA.gameObject?.getData?.('tag');
-        const tagB = bodyB.gameObject?.getData?.('tag');
+        const tagA = pair.bodyA.gameObject?.getData?.('tag');
+        const tagB = pair.bodyB.gameObject?.getData?.('tag');
 
         if ([tagA, tagB].includes('player') && [tagA, tagB].includes('package')) {
           this.package.destroy();
@@ -74,12 +104,8 @@ export default class GameScene extends Phaser.Scene {
         }
       });
     });
-
-    this.events.on('abrirMenuModal', () => {
-      this.abrirMenuModal();
-    });
-
   }
+
   showLevelCompleteModal() {
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
@@ -95,9 +121,7 @@ export default class GameScene extends Phaser.Scene {
       this.cameras.main.worldView.y + this.cameras.main.height / 2
     ).setScrollFactor(0);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1);
-    panel.setStrokeStyle(2, 0x000000);
-
+    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', {
       fontSize: '24px',
       color: '#000',
@@ -113,12 +137,12 @@ export default class GameScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
-      this.scene.start('IceScene'); //prox fase -----------------
+      this.scene.start('IceScene');
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
@@ -126,7 +150,7 @@ export default class GameScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
@@ -139,7 +163,7 @@ export default class GameScene extends Phaser.Scene {
       color: '#0077ff',
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    }).setOrigin(0.5).setInteractive();
 
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
@@ -151,21 +175,16 @@ export default class GameScene extends Phaser.Scene {
   }
 
   destroyModal() {
-    if (this.modalBackground) this.modalBackground.destroy();
-    if (this.modalContainer) this.modalContainer.destroy();
+    this.modalBackground?.destroy();
+    this.modalContainer?.destroy();
   }
 
-  perderVida() {
-    if (this.vidas > 0) {
-      this.vidas--;
-      this.coracoes[this.vidas].setTexture('heart_empty');
-    }
-  }
   spawnPortal() {
-    const x = 180;
-    const y = 200;
+    const x = 200;
+    const y = 350;
+
     this.portalMain?.destroy();
-    this.portalRings?.forEach(r => r.sprite.destroy());
+    this.portalRings.forEach(r => r.sprite.destroy());
     this.portalRings = [];
 
     this.portalMain = this.add.image(x, y, 'portal_center').setScale(1).setAlpha(0.9);
@@ -175,34 +194,32 @@ export default class GameScene extends Phaser.Scene {
       isSensor: true,
     });
     this.portalMain.setData('tag', 'portal');
-    // Anéis
+
     for (let i = 1; i <= 2; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
+      const ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
       this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
   }
 
   update() {
-    this.player.updateMovement(this.cursors);
-    // Animações do portal
-    if (this.portalMain) {
-      this.portalMain.rotation += 0.02;
-    }
-    if (this.portalRings) {
-      this.portalRings.forEach(ringObj => {
-        if (ringObj.growing) {
-          ringObj.scale += 0.01;
-          if (ringObj.scale >= 1.0) ringObj.growing = false;
-        } else {
-          ringObj.scale -= 0.01;
-          if (ringObj.scale <= 1) ringObj.growing = true;
-        }
-        ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
+    this.player?.updateMovement?.(this.cursors);
+
+    this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
+
+    this.portalRings.forEach(ring => {
+      if (ring.growing) {
+        ring.scale += 0.01;
+        if (ring.scale >= 1.0) ring.growing = false;
+      } else {
+        ring.scale -= 0.01;
+        if (ring.scale <= 1) ring.growing = true;
+      }
+      ring.sprite.setScale(ring.scale);
+    });
   }
+
   shutdown() {
-    if (this.music && this.music.isPlaying) {
+    if (this.music?.isPlaying) {
       this.music.stop();
     }
   }
