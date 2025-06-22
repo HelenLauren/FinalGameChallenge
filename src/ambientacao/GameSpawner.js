@@ -40,8 +40,7 @@ export default class GameSpawner {
     const avoidCenter = Phaser.Math.Distance.Between(x, y, this.worldWidth / 2, this.worldHeight / 2) < 100;
     if (avoidCenter) return true;
 
-    retu
-    rn usedPositions.some(p => Phaser.Math.Distance.Between(p.x, p.y, x, y) < minDist);
+    return usedPositions.some(p => Phaser.Math.Distance.Between(p.x, p.y, x, y) < minDist);
   }
   addTree(x, y, key, scale) {
     const tree = this.scene.add.image(x, y, key);

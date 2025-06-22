@@ -1,112 +1,184 @@
-export default class SeaSpawner {
+export default class MedievalSpawner {
   constructor(scene) {
     this.scene = scene;
     this.tileSize = 6;
     this.cols = 512;
     this.rows = 224;
-    this.worldWidth = this.cols * this.tileSize;
-    this.worldHeight = this.rows * this.tileSize;
+    this.worldWidth = this.cols * this.tileSize;  // 3072
+    this.worldHeight = this.rows * this.tileSize; // 1344
 
-    this.ruinSprites = ['ruins1.png', 'ruins2.png'];
-    this.decorationSprites = ['coral1.png', 'coral2.png', 'rock1.png'];
-
-    this.ruinPositions = [
-      { x: 600, y: 600 }, { x: 1000, y: 700 },
-      { x: 1400, y: 800 }, { x: 1800, y: 650 },
-      { x: 2200, y: 700 }, { x: 2600, y: 750 },
-      { x: 3000, y: 800 }, { x: 3300, y: 650 },
+    this.ruinImages = [
+      'ruins1',
+      'ruins2'
     ];
 
-    this.blockedAreas = [
-      { x: 400, y: 300, radius: 120 },
-      { x: this.worldWidth - 200, y: this.worldHeight - 100, radius: 120 },
+    this.coralKeys = [
+      'coral_roxo', 'coral1', 'coral2', 'coral3',
+      'coralP1', 'coralP2'
+    ];
+
+    this.bushSprites = [
+      'coral_roxo', 'coralP1', 'coralP2', 'seaUrchin', 'seaUrchin2'
+    ];
+
+    this.coralPositions = [
+      { x: 680, y: 500 }, { x: 1620, y: 300 }, { x: 1560, y: 980 },
+      { x: 2100, y: 990 }, { x: 2220, y:1100 }, { x: 80, y: 300 },
+      { x: 2540, y: 990 }, { x: 1500, y: 600 }
     ];
   }
 
-  isPositionBlocked(x, y, minDist = 100) {
-    return this.blockedAreas.some(pos => Phaser.Math.Distance.Between(pos.x, pos.y, x, y) < minDist);
-  }
-
-  isPositionTaken(x, y, usedPositions, minDist = 80) {
+  isPositionTaken(x, y, usedPositions, minDist = 50) {
     return usedPositions.some(p => Phaser.Math.Distance.Between(p.x, p.y, x, y) < minDist);
   }
 
-  addStaticAsset(x, y, key, scale = 1, hitbox = { widthFactor: 0.1, heightFactor: 0.1 }) {
-    const sprite = this.scene.add.image(x, y, key).setScale(scale).setOrigin(0.5, 1);
-    sprite.setDepth(sprite.y - 100);
+  addCoral(x, y, key, scale) {
+    const tree = this.scene.add.image(x, y, key);
+    tree.setScale(scale);
+    tree.setOrigin(0.5, 1);
 
-    const bodyWidth = sprite.width * scale * hitbox.widthFactor;
-    const bodyHeight = sprite.height * scale * hitbox.heightFactor;
+    const trunkWidth = tree.width * scale * 0.1; 
+    const trunkHeight = tree.height * scale * 0.1; 
 
-    const body = this.scene.matter.add.rectangle(x, y - bodyHeight / 2, bodyWidth, bodyHeight, { isStatic: true });
-    sprite.setData('matterBody', body);
+    const matterBody = this.scene.matter.add.rectangle(
+      x,
+      y - trunkHeight / 2,
+      trunkWidth,
+      trunkHeight,
+      { isStatic: true }
+    );
 
-    this.blockedAreas.push({ x, y, radius: 100 });
+    tree.setData('matterBody', matterBody);
+    tree.setDepth(tree.y);
   }
 
-  spawnSea() {
-    const tileSize = 128;
-    const seaXStart = this.worldWidth - 6 * tileSize;
-    const seaYTiles = Math.ceil(this.worldHeight / tileSize);
-    const seaXTiles = 6;
+  spawnCoral() {
+    // Adiciona posições fixas, evitando duplicação
+    this.coralPositions.forEach(pos => {
+      const key = Phaser.Utils.Array.GetRandom(this.treeKeys);
+      this.addCoral(pos.x, pos.y, key, 1.8);
+    });
 
-    for (let i = 0; i < seaXTiles; i++) {
-      for (let j = 0; j < seaYTiles; j++) {
-        const x = seaXStart + i * tileSize;
-        const y = j * tileSize;
-        const tile = this.scene.add.image(x, y, 'mar.png');
-        tile.setOrigin(0, 0);
-        tile.setDepth(0);
-      }
-    }
+    const coralGroups = [
+      { stepY: 200, countX: 2, xRangeStart: 280, xRangeEnd: 300, scaleMin: 1.6, scaleMax: 2.2, offsetX: 60, offsetYRange: 15 },
+      { stepY: 160, countX: 4, xRangeStart: 40, xRangeEnd: 70, scaleMin: 1.8, scaleMax: 2.4, offsetX: 45, offsetYRange: 20 },
+      { stepY: 115, countX: 4, xRangeStart: 40, xRangeEnd: 70, scaleMin: 1.8, scaleMax: 2.4, offsetX: 45, offsetYRange: 20 },
+      { stepY: 120, countX: 4, xRangeStart: 50, xRangeEnd: 70, scaleMin: 1.8, scaleMax: 2.4, offsetX: 55, offsetYRange: 30 },
+    ];
 
-    this.blockedAreas.push({ x: seaXStart + 3 * tileSize, y: this.worldHeight / 2, radius: 500 });
-  }
+    const usedPositions = [...this.coralPositions];
 
-  spawnRuins() {
-    const used = [];
+    coralGroups.forEach(group => {
+      for (let y = this.worldHeight - 100; y > 0; y -= group.stepY) {
+        for (let offset = 0; offset < group.countX; offset++) {
+          const x = this.worldWidth - Phaser.Math.Between(
+            group.xRangeStart + offset * group.offsetX,
+            group.xRangeEnd + offset * group.offsetX
+          );
+          const key = Phaser.Utils.Array.GetRandom(this.coralKeys);
+          const scale = Phaser.Math.FloatBetween(group.scaleMin, group.scaleMax);
+          const yOffset = Phaser.Math.Between(-group.offsetYRange, group.offsetYRange);
+          const xOffset = Phaser.Math.Between(-5, 5);
+          const finalX = x + xOffset;
+          const finalY = y + yOffset;
 
-    this.ruinPositions.forEach((basePos, i) => {
-      let { x, y } = basePos;
-      let tentativas = 0;
-      const maxTentativas = 5;
-      let colocado = false;
-
-      while (tentativas < maxTentativas && !colocado) {
-        if (!this.isPositionBlocked(x, y) && !this.isPositionTaken(x, y, used)) {
-          const key = this.ruinSprites[i % this.ruinSprites.length];
-          const scale = 2;
-          this.addStaticAsset(x, y, key, scale, { widthFactor: 0.3, heightFactor: 0.2 });
-          used.push({ x, y });
-          colocado = true;
-        } else {
-          x += Phaser.Math.Between(-80, 80);
-          y += Phaser.Math.Between(-80, 80);
-          tentativas++;
+          if (!this.isPositionTaken(finalX, finalY, usedPositions, 60)) {
+            this.addCoral(finalX, finalY, key, scale);
+            usedPositions.push({ x: finalX, y: finalY });
+          }
         }
       }
     });
-  }
 
-  spawnDecorations(count = 40) {
-    const used = [];
+    for (let x = 0; x < this.worldWidth; x += Phaser.Math.Between(80, 110)) {
+      for (let offset = 0; offset < 2; offset++) {
+        const y = this.worldHeight - Phaser.Math.Between(20 + offset * 25, 40 + offset * 25);
+        const key = Phaser.Utils.Array.GetRandom(this.coralKeys);
+        const scale = Phaser.Math.FloatBetween(1.7, 2.3);
+        const finalX = x + Phaser.Math.Between(-10, 10);
+        const finalY = y;
 
-    for (let i = 0; i < count; i++) {
-      const x = Phaser.Math.Between(100, this.worldWidth - 400);
-      const y = Phaser.Math.Between(100, this.worldHeight - 100);
+        if (!this.isPositionTaken(finalX, finalY, usedPositions, 60)) {
+          this.addCoral(finalX, finalY, key, scale);
+          usedPositions.push({ x: finalX, y: finalY });
+        }
+      }
+    }
 
-      if (!this.isPositionBlocked(x, y) && !this.isPositionTaken(x, y, used)) {
-        const key = Phaser.Utils.Array.GetRandom(this.decorationSprites);
-        const scale = Phaser.Math.FloatBetween(1.2, 1.7);
-        this.addStaticAsset(x, y, key, scale, { widthFactor: 0.1, heightFactor: 0.1 });
-        used.push({ x, y });
+    for (let i = 0; i < 25; i++) {
+      const x = Phaser.Math.Between(this.worldWidth - 220, this.worldWidth);
+      const y = Phaser.Math.Between(this.worldHeight - 220, this.worldHeight);
+      const key = Phaser.Utils.Array.GetRandom(this.coralKeys);
+      const scale = Phaser.Math.FloatBetween(1.6, 2.4);
+
+      if (!this.isPositionTaken(x, y, usedPositions, 60)) {
+        this.addCoral(x, y, key, scale);
+        usedPositions.push({ x, y });
+      }
+    }
+
+    for (let y = this.worldHeight - 100; y > 0; y -= Phaser.Math.Between(100, 130)) {
+      for (let offset = 0; offset < 4; offset++) {
+        const x = Phaser.Math.Between(40 + offset * 45, 70 + offset * 45);
+        const key = Phaser.Utils.Array.GetRandom(this.coralKeys);
+        const scale = Phaser.Math.FloatBetween(1.8, 2.4);
+        const yOffset = Phaser.Math.Between(-20, 20);
+        const xOffset = Phaser.Math.Between(-5, 5);
+        const finalX = x + xOffset;
+        const finalY = y + yOffset;
+
+        if (!this.isPositionTaken(finalX, finalY, usedPositions, 60)) {
+          this.addCoral(finalX, finalY, key, scale);
+          usedPositions.push({ x: finalX, y: finalY });
+        }
       }
     }
   }
 
-  spawnAll() {
-    this.spawnSea();
-    this.spawnRuins();
-    this.spawnDecorations();
+  spawnBush() {
+    const bushSize = 50;
+    const uniqueBushPositions = [];
+
+    this.treePositions.forEach(pos => {
+      uniqueBushPositions.push({ x: pos.x + 50, y: pos.y + 40 });
+    });
+
+    uniqueBushPositions.forEach(pos => {
+      const spriteKey = Phaser.Utils.Array.GetRandom(this.bushSprites);
+      const bush = this.scene.add.sprite(pos.x, pos.y, spriteKey);
+      bush.setDisplaySize(bushSize, bushSize);
+      bush.setOrigin(0.5, 1);
+      bush.setDepth(bush.y);
+    });
   }
+
+  spawnRuins() {
+    
+    const layoutPositions = [
+      { x: 500, y: 300 }, { x: 900, y: 300 }, { x: 1200, y: 300 },
+      { x: 1800, y: 300 }, { x: 2000, y: 300 }, { x: 2300, y: 300 },
+      { x: 2500, y: 300 }, { x: 400, y: 600 }, { x: 600, y: 600 },
+      { x: 900, y: 600 }, { x: 1100, y: 600 }, { x: 1300, y: 600 },
+      { x: 1800, y: 600 }, { x: 2100, y: 600 }, { x: 2450, y: 600 },
+      { x: 250, y: 250 }
+    ];
+
+    const allHouses = topHousesPositions.concat(layoutPositions);
+
+    allHouses.forEach(pos => {
+      const key = Phaser.Utils.Array.GetRandom(this.houseImages);
+      const house = this.scene.matter.add.sprite(
+        pos.x + houseSize / 2,
+        pos.y + houseSize,
+        key
+      );
+
+      house.setDisplaySize(houseSize, houseSize);
+      house.setOrigin(0, 1);
+      house.setDepth(house.y);
+      house.setRectangle(houseSize - 120, houseSize - 90);
+      house.setStatic(true);
+      house.setData('tag', 'house');
+    });
+  }
 }

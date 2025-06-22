@@ -26,13 +26,18 @@ export default class SeaScene extends Phaser.Scene {
     this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
-    this.load.image('mar.png', 'assets/images/sea/mar.png');
-    this.load.image('sea_ruin1.png', 'assets/images/sea/ruins1.png');
-    this.load.image('sea_ruin2.png', 'assets/images/sea/ruins2.png');
-    this.load.image('coral1.png', 'assets/images/sea/coral1.png');
-    this.load.image('coral2.png', 'assets/images/sea/coral2.png');
-    this.load.image('rock1.png', 'assets/images/sea/rock1.png');
+    this.load.image('mar', 'assets/images/sea/mar.png');
+    this.load.image('ruins1', 'assets/images/sea/ruins1.png');
+    this.load.image('ruins2', 'assets/images/sea/ruins2.png');
+    this.load.image('coral1', 'assets/images/sea/coral1.png');
+    this.load.image('coral2', 'assets/images/sea/coral2.png');
+    this.load.image('coral3', 'assets/images/sea/coral3.png');
+    this.load.image('coralP1', 'assets/images/sea/coralP1.png');
+    this.load.image('coralP2', 'assets/images/sea/coralP2.png');
+    this.load.image('coral_roxo', 'assets/images/sea/rock1.png');
     this.load.image('portal_center', 'assets/images/portal.png');
+    this.load.image('seaUrchin1', 'assets/images/sea/seaUrchin1.png');
+    this.load.image('seaUrchin2', 'assets/images/sea/seaUrchin2.png');
     this.load.image('package', 'assets/images/package.png');
     this.load.audio(this.musicKey, `assets/audio/${this.musicKey}.mp3`);
   
