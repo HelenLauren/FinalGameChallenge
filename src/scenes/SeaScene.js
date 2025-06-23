@@ -117,22 +117,29 @@ export default class SeaScene extends Phaser.Scene {
     });
   }
   perderVida() {
-    if (this.player.invulneravel || this.physicsPaused) return;
+  if (this.player.invulneravel || this.physicsPaused) return;
 
-    this.player.vidas--;
-    this.hud.atualizarVidas(this.player.vidas);
+  this.player.vidas--;
+  this.hud.atualizarVidas(this.player.vidas);
 
-    if (this.player.vidas <= 0) {
+  if (this.player.vidas <= 0) {
+    this.physicsPaused = true;
+    this.player.setVelocity(0);
+    this.player.setStatic(true);
+    this.player.setTint(0xff0000);
+
+    this.time.delayedCall(300, () => {
       this.showGameOverModal();
-    } else {
-      this.player.invulneravel = true;
-      this.player.setTint(0xff0000);
-      this.time.delayedCall(1000, () => {
-        this.player.clearTint();
-        this.player.invulneravel = false;
-      });
-    }
+    });
+  } else {
+    this.player.invulneravel = true;
+    this.player.setTint(0xff0000);
+    this.time.delayedCall(1000, () => {
+      this.player.clearTint();
+      this.player.invulneravel = false;
+    });
   }
+}
   showLevelCompleteModal() {
       const hudDepth = 9000;
       this.modalBackground = this.add.rectangle(
@@ -203,57 +210,63 @@ export default class SeaScene extends Phaser.Scene {
   }
   showGameOverModal() {
   const hudDepth = 9000;
-    this.modalBackground = this.add.rectangle(
-      this.cameras.main.worldView.x + this.cameras.main.width / 2,
-      this.cameras.main.worldView.y + this.cameras.main.height / 2,
-      this.cameras.main.width,
-      this.cameras.main.height,
-      0x000000,
-      0.6
-    ).setScrollFactor(0).setDepth(hudDepth-1);
+  const cam = this.cameras.main;
 
-   this.modalContainer = this.add.container(
-      this.cameras.main.midPoint.x,
-      this.cameras.main.midPoint.y,
-      [panel, title, btnNext, btnRestart, btnMenu]
-    ).setScrollFactor(0).setDepth(hudDepth);
+  this.modalBackground = this.add.rectangle(
+    cam.midPoint.x,
+    cam.midPoint.y,
+    cam.width,
+    cam.height,
+    0x000000,
+    0.6
+  ).setScrollFactor(0).setDepth(hudDepth - 1);
 
+  const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1)
+    .setStrokeStyle(2, 0x000000);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
-    const title = this.add.text(0, -70, 'Fase Completa!', {
-      fontSize: '24px',
-      color: '#000',
-      fontStyle: 'bold',
-    }).setOrigin(0.5);
+  const title = this.add.text(0, -70, 'Você Morreu!', {
+    fontSize: '24px',
+    color: '#000000',
+    fontStyle: 'bold',
+  }).setOrigin(0.5);
 
-  const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const btnRestart = this.add.text(0, -10, 'Reiniciar Fase', {
+    fontSize: '20px',
+    color: '#0077ff',
+    backgroundColor: '#cce5ff',
+    padding: { x: 10, y: 5 },
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    btnRestart.on('pointerdown', () => {
-      this.destroyModal();
-      this.music.stop();
-      this.scene.restart();
-    });
+  btnRestart.on('pointerdown', () => {
+    this.destroyModal();
+    this.music.stop();
+    this.scene.restart();
+  });
 
-    const btnMenu = this.add.text(0, 80, 'Menu Principal', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+  const btnMenu = this.add.text(0, 50, 'Menu Principal', {
+    fontSize: '20px',
+    color: '#0077ff',
+    backgroundColor: '#cce5ff',
+    padding: { x: 10, y: 5 },
+  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-    btnMenu.on('pointerdown', () => {
-      this.destroyModal();
-      this.music.stop();
-      this.scene.start('MenuScene');
-    });
+  btnMenu.on('pointerdown', () => {
+    this.destroyModal();
+    this.music.stop();
+    this.scene.start('MenuScene');
+  });
 
-    this.modalContainer.add([panel, title, btnRestart, btnMenu]);
-  }
+  this.modalContainer = this.add.container(
+    cam.midPoint.x,
+    cam.midPoint.y,
+    [panel, title, btnRestart, btnMenu]
+  ).setScrollFactor(0).setDepth(hudDepth);
+
+  // Parar o jogador e pausar o jogo
+  this.player.setVelocity(0);
+  this.player.body.isStatic = true;
+  this.physicsPaused = true;
+}
 
 
   destroyModal() {
