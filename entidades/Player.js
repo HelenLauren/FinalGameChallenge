@@ -62,22 +62,24 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     let moving = false;
     let vx = 0, vy = 0;
 
+    const speed = 5;
+
     if (cursors.left.isDown) {
-      vx = -4;
+      vx = -speed;
       this.lastDirection = 'left';
       moving = true;
     } else if (cursors.right.isDown) {
-      vx = 4;
+      vx = speed;
       this.lastDirection = 'right';
       moving = true;
     }
 
     if (cursors.up.isDown) {
-      vy = -4;
+      vy = -speed;
       this.lastDirection = 'back';
       moving = true;
     } else if (cursors.down.isDown) {
-      vy = 4;
+      vy = speed;
       this.lastDirection = 'front';
       moving = true;
     }

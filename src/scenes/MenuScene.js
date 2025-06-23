@@ -345,7 +345,7 @@ export default class MenuScene extends Phaser.Scene {
     this.fases = [
       { nome: 'Fase 1', key: 'GameScene' },
       { nome: 'Fase 2', key: 'IceScene' },
-      { nome: 'Fase 3', key: 'EightiesScene' },
+      { nome: 'Fase 3', key: 'SeaScene' },
       { nome: 'Fase 4', key: 'MedievalScene' },
       { nome: 'Fase 5', key: 'DinoScene' },
       { nome: 'Fase 6', key: 'FutureScene' },

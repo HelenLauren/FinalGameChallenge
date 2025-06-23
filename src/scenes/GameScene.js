@@ -81,7 +81,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(2500, 1050, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(1680, 700, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
@@ -180,8 +180,8 @@ export default class GameScene extends Phaser.Scene {
   }
 
   spawnPortal() {
-    const x = 200;
-    const y = 350;
+    const x = 350;
+    const y = 280;
 
     this.portalMain?.destroy();
     this.portalRings.forEach(r => r.sprite.destroy());

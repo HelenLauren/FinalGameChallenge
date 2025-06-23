@@ -1,32 +1,28 @@
 import Player from '../../entidades/Player.js';
-import SeaSpawner from '../ambientacao/SeaSpawner.js';
-import MedievalScene from './MedievalScene.js';
 import Hud from '../../ui/Hud.js';
+import SeaSpawner from '../ambientacao/SeaSpawner.js';
 
 export default class SeaScene extends Phaser.Scene {
-  constructor(key, musicKey, nextSceneKey) {
-    super(key);
-
-    this.sceneKey = SeaScene;
-    this.musicKey = 'sea_theme';
-    this.nextSceneKey = MedievalScene;
+  constructor() {
+    super('SeaScene');
 
     this.tileSize = 6;
     this.cols = 512;
     this.rows = 224;
     this.worldWidth = this.cols * this.tileSize;
     this.worldHeight = this.rows * this.tileSize;
-
-    this.spawner = SeaSpawner
   }
 
   preload() {
     this.load.spritesheet('Helen', 'entidades/helen_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Helena', 'entidades/helena_idle.png', { frameWidth: 64, frameHeight: 64 });
     this.load.spritesheet('Raissa', 'entidades/raissa_idle.png', { frameWidth: 64, frameHeight: 64 });
+    this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('heart_full', 'assets/images/coracaoRosa.png');
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
-    this.load.image('mar', 'assets/images/sea/mar.png');
+    this.load.image('package', 'assets/images/package.png');
+    this.load.audio('sea_theme', 'assets/audio/sea_theme.mp3');
+
     this.load.image('ruins1', 'assets/images/sea/ruins1.png');
     this.load.image('ruins2', 'assets/images/sea/ruins2.png');
     this.load.image('coral1', 'assets/images/sea/coral1.png');
@@ -34,17 +30,13 @@ export default class SeaScene extends Phaser.Scene {
     this.load.image('coral3', 'assets/images/sea/coral3.png');
     this.load.image('coralP1', 'assets/images/sea/coralP1.png');
     this.load.image('coralP2', 'assets/images/sea/coralP2.png');
-    this.load.image('coral_roxo', 'assets/images/sea/rock1.png');
-    this.load.image('portal_center', 'assets/images/portal.png');
+    this.load.image('coral_roxo', 'assets/images/sea/coral_roxo.png');
     this.load.image('seaUrchin1', 'assets/images/sea/seaUrchin1.png');
     this.load.image('seaUrchin2', 'assets/images/sea/seaUrchin2.png');
-    this.load.image('package', 'assets/images/package.png');
-    this.load.audio(this.musicKey, `assets/audio/${this.musicKey}.mp3`);
-  
   }
 
   create() {
-    this.music = this.sound.add(this.musicKey, { loop: true, volume: 0.4 });
+    this.music = this.sound.add('sea_theme', { loop: true, volume: 0.4 });
     this.music.play();
 
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
@@ -53,12 +45,17 @@ export default class SeaScene extends Phaser.Scene {
       return;
     }
 
-    this.drawFundo();
-
-    if (this.spawner) {
-      const spawnerInstance = new this.spawner(this);
-      spawnerInstance.spawnAll?.();
+    const graphics = this.add.graphics();
+    for (let y = 0; y < this.rows; y++) {
+      for (let x = 0; x < this.cols; x++) {
+        const color = Phaser.Math.Between(0, 1) === 0 ? 0xC2B280 : 0xD2B48C;
+        graphics.fillStyle(color, 1);
+        graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
+      }
     }
+
+    const seaSpawner = new SeaSpawner(this);
+    seaSpawner.spawnAll?.();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
     this.hud = new Hud(this, personagemSelecionado);
@@ -68,7 +65,7 @@ export default class SeaScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(350, 900, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(1950, 600, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
@@ -91,21 +88,6 @@ export default class SeaScene extends Phaser.Scene {
         }
       });
     });
-
-    this.events.on('abrirMenuModal', () => {
-      this.abrirMenuModal();
-    });
-  }
-
-  drawFundo() {
-    const graphics = this.add.graphics();
-    for (let y = 0; y < this.rows; y++) {
-      for (let x = 0; x < this.cols; x++) {
-        const cor = Phaser.Math.Between(0, 1) === 0 ? 0xcccccc : 0xdddddd;
-        graphics.fillStyle(cor, 1);
-        graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-      }
-    }
   }
 
   showLevelCompleteModal() {
@@ -116,18 +98,18 @@ export default class SeaScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0).setDepth(999);
+    ).setScrollFactor(0);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0).setDepth(1000);
+    ).setScrollFactor(0);
 
     const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
 
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[this.sceneKey] = true;
+    progresso[4] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
     const btnNext = this.add.text(0, -20, 'Próxima Fase', {
@@ -137,7 +119,7 @@ export default class SeaScene extends Phaser.Scene {
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
-      this.scene.start(this.nextSceneKey);
+      this.scene.start('MedievalScene');
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
@@ -169,8 +151,8 @@ export default class SeaScene extends Phaser.Scene {
   }
 
   spawnPortal() {
-    const x = 180;
-    const y = 200;
+    const x = 300;
+    const y = 350;
 
     this.portalMain?.destroy();
     this.portalRings.forEach(r => r.sprite.destroy());
@@ -185,7 +167,7 @@ export default class SeaScene extends Phaser.Scene {
     this.portalMain.setData('tag', 'portal');
 
     for (let i = 1; i <= 2; i++) {
-      let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
+      const ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
       this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
     }
   }
@@ -193,11 +175,9 @@ export default class SeaScene extends Phaser.Scene {
   update() {
     this.player?.updateMovement?.(this.cursors);
 
-    if (this.portalMain) {
-      this.portalMain.rotation += 0.02;
-    }
+    this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
 
-    this.portalRings?.forEach(ring => {
+    this.portalRings.forEach(ring => {
       if (ring.growing) {
         ring.scale += 0.01;
         if (ring.scale >= 1.0) ring.growing = false;
@@ -209,9 +189,8 @@ export default class SeaScene extends Phaser.Scene {
     });
   }
 
-
   shutdown() {
-    if (this.music && this.music.isPlaying) {
+    if (this.music?.isPlaying) {
       this.music.stop();
     }
   }
