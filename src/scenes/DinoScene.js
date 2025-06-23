@@ -1,5 +1,7 @@
 import Player from '../../entidades/Player.js';
 import Hud from '../../ui/Hud.js';
+import DinoSpawner from '../ambientacao/DinoSpawner.js';
+
 export default class DinoScene extends Phaser.Scene {
   constructor() {
     super('DinoScene');
@@ -19,6 +21,21 @@ export default class DinoScene extends Phaser.Scene {
     this.load.image('heart_empty', 'assets/images/coracaoCinza.PNG');
     this.load.image('portal_center', 'assets/images/portal.png');
     this.load.image('package', 'assets/images/package.png');
+    this.load.image('cactus1', 'assets/images/dino/cactus1.png');
+    this.load.image('cactus2', 'assets/images/dino/cactus2.png');
+    this.load.image('cactus3', 'assets/images/dino/cactus3.png');
+    this.load.image('cactus4', 'assets/images/dino/cactus4.png');
+    this.load.image('cactus5', 'assets/images/dino/cactus5.png');
+    this.load.image('cactus6', 'assets/images/dino/cactus6.png');
+    this.load.image('rocha_big', 'assets/images/dino/rocha_big.png');
+    this.load.image('rocha', 'assets/images/dino/rocha.png');
+    this.load.image('rocha2', 'assets/images/dino/rocha2.png');
+    this.load.image('rocha3', 'assets/images/dino/rocha3.png');
+    this.load.image('rocha4', 'assets/images/dino/rocha4.png');
+    this.load.image('dino_inc', 'assets/images/dino/dino_inc.png');
+    this.load.image('dino_dir', 'assets/images/dino/dino_dir.png');
+    this.load.image('dino_esq', 'assets/images/dino/dino_esq.png');
+    this.load.image('dino_head', 'assets/images/dino/dino_head.png');
     this.load.audio('dinoMusic', 'assets/audio/dino_theme.mp3');
   }
 
@@ -27,18 +44,23 @@ export default class DinoScene extends Phaser.Scene {
     this.music.play();
 
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');
-  if (!personagemSelecionado) {
-    this.scene.start('BootScene');
-    return;
-  }
+    if (!personagemSelecionado) {
+      this.scene.start('BootScene');
+      return;
+    }
+
     const graphics = this.add.graphics();
     for (let y = 0; y < this.rows; y++) {
       for (let x = 0; x < this.cols; x++) {
-        const color = Phaser.Math.Between(0, 1) === 0 ? 0x018600 : 0x018e00;
+         const color = Phaser.Math.Between(0, 1) === 0 ? 0xC2B280 : 0xD2B48C;
         graphics.fillStyle(color, 1);
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
+
+    this.spawner = new DinoSpawner(this);
+    this.spawner.spawnAll();
+
     this.player = new Player(this, 500, 400, personagemSelecionado);
     this.hud = new Hud(this, personagemSelecionado);
 
@@ -47,7 +69,7 @@ export default class DinoScene extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(200, 200, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2200, 200, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
@@ -75,6 +97,7 @@ export default class DinoScene extends Phaser.Scene {
       });
     });
   }
+
   showLevelCompleteModal() {
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
@@ -113,7 +136,7 @@ export default class DinoScene extends Phaser.Scene {
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
-      this.scene.start('FutureScene'); //prox fase -----------------
+      this.scene.start('FinalScene');
     });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
@@ -149,12 +172,14 @@ export default class DinoScene extends Phaser.Scene {
     if (this.modalBackground) this.modalBackground.destroy();
     if (this.modalContainer) this.modalContainer.destroy();
   }
+
   perderVida() {
     if (this.vidas > 0) {
       this.vidas--;
       this.coracoes[this.vidas].setTexture('heart_empty');
     }
   }
+
   spawnPortal() {
     const x = 180;
     const y = 200;
@@ -169,7 +194,7 @@ export default class DinoScene extends Phaser.Scene {
       isSensor: true,
     });
     this.portalMain.setData('tag', 'portal');
-    // Anéis
+
     for (let i = 1; i <= 2; i++) {
       let ring = this.add.circle(x, y, 30 + i * 10, 0xDF9CFF, 0.3);
       this.portalRings.push({ sprite: ring, baseRadius: 30 + i * 10, scale: 1, growing: true });
@@ -178,7 +203,7 @@ export default class DinoScene extends Phaser.Scene {
 
   update() {
     this.player.updateMovement(this.cursors);
-    // Animações do portal
+
     if (this.portalMain) {
       this.portalMain.rotation += 0.02;
     }
@@ -195,6 +220,7 @@ export default class DinoScene extends Phaser.Scene {
       });
     }
   }
+
   shutdown() {
     if (this.music && this.music.isPlaying) {
       this.music.stop();

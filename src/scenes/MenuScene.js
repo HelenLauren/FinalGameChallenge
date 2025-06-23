@@ -348,7 +348,6 @@ export default class MenuScene extends Phaser.Scene {
       { nome: 'Fase 3', key: 'SeaScene' },
       { nome: 'Fase 4', key: 'MedievalScene' },
       { nome: 'Fase 5', key: 'DinoScene' },
-      { nome: 'Fase 6', key: 'FutureScene' },
       { nome: 'Fase Final', key: 'FinalScene' }
     ];
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
