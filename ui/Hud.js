@@ -4,25 +4,16 @@ export default class Hud {
     this.vidas = vidas;
     this.coracoes = [];
 
+    for (let i = 0; i < 3; i++) {
+      const heart = this.scene.add.image(30 + i * 40, 30, 'heart_full').setDisplaySize(25, 25) .setScrollFactor(0).setDepth(9000);
+      this.coracoes.push(heart);
+    }
+
     const margin = 16;
     const heartWidth = 25;
-    const heartHeight = 20;
     const heartSpacing = 6;
     const screenWidth = scene.cameras.main.width;
     const HUD_DEPTH = 9000;
-
-    for (let i = 0; i < vidas; i++) {
-      const x = margin + i * (heartWidth + heartSpacing);
-      const y = margin;
-
-      const coracao = scene.add.image(x, y, 'heart_full')
-        .setScrollFactor(0)
-        .setDisplaySize(heartWidth, heartHeight)
-        .setOrigin(0, 0)
-        .setDepth(HUD_DEPTH);
-
-      this.coracoes.push(coracao);
-    }
 
     const nomeX = margin + vidas * (heartWidth + heartSpacing) + 10;
 
@@ -56,6 +47,16 @@ export default class Hud {
       this.nomeTexto,
       this.btnMenu
     ]).setScrollFactor(0);
+  }
+
+  atualizarVidas(vidasRestantes) {
+    for (let i = 0; i < this.coracoes.length; i++) {
+      if (i < vidasRestantes) {
+        this.coracoes[i].setTexture('heart_full');
+      } else {
+        this.coracoes[i].setTexture('heart_empty');
+      }
+    }
   }
 
   abrirMenuModal() {
@@ -136,7 +137,6 @@ export default class Hud {
     ]).setScrollFactor(0)
       .setDepth(MODAL_DEPTH_UI);
   }
-
 
   fecharMenuModal() {
     this.modalBackground?.destroy();

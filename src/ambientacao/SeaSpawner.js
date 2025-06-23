@@ -86,8 +86,8 @@ export default class SeaSpawner {
       this.addCoral(this.worldWidth - 60, this.worldHeight - y, Phaser.Utils.Array.GetRandom(this.coralKeys), coralScale);
     }
 
-    const rowSpacing = 100;
-    const coralScaleRow = 1.8;
+    const rowSpacing = 120;
+    const coralScaleRow = 1.5;
     const coralCountRow = Math.floor(this.worldWidth / rowSpacing) - 1;
 
     for (let i = 0; i < coralCountRow; i++) {
@@ -96,7 +96,7 @@ export default class SeaSpawner {
       this.addCoral(x, this.worldHeight - 30, Phaser.Utils.Array.GetRandom(this.coralKeys), coralScaleRow);
     }
 
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < 50; i++) {
       const x = Phaser.Math.Between(60, this.worldWidth - 60);
       const y = Phaser.Math.Between(60, this.worldHeight - 60);
       const key = Phaser.Utils.Array.GetRandom(this.coralKeys);
@@ -111,7 +111,7 @@ export default class SeaSpawner {
 
   spawnBush() {
     const positions = [];
-    const count = 120;
+    const count = 50;
     const margin = 60;
 
     for (let i = 0; i < count; i++) {

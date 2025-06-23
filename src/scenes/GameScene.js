@@ -200,7 +200,7 @@ export default class GameScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0).setDepth(hudDepth - 1);
+    ).setScrollFactor(0).setDepth(hudDepth-1);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
@@ -214,11 +214,17 @@ export default class GameScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    const btnNext = this.add.text(0, -20, 'Próxima Fase', { 
+    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
+    progresso[2] = true;
+    localStorage.setItem('progressoFases', JSON.stringify(progresso));
+
+    const btnNext = this.add.text(0, -20, 'Próxima Fase', {
       fontSize: '20px',
       color: '#0077ff',
       backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },}).setOrigin(0.5).setInteractive();
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
@@ -251,7 +257,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
   }
-
+  
   destroyModal() {
     this.modalBackground?.destroy();
     this.modalContainer?.destroy();

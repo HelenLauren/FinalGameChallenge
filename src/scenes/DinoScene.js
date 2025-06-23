@@ -1,4 +1,5 @@
 import Player from '../../entidades/Player.js';
+import Enemy from '../../entidades/Enemy.js';
 import Hud from '../../ui/Hud.js';
 import DinoSpawner from '../ambientacao/DinoSpawner.js';
 
@@ -57,12 +58,42 @@ export default class DinoScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
+    this.hud = new Hud(this, personagemSelecionado);
 
     this.spawner = new DinoSpawner(this);
     this.spawner.spawnAll();
 
-    this.player = new Player(this, 500, 400, personagemSelecionado);
-    this.hud = new Hud(this, personagemSelecionado);
+    this.player = new Player(this, 400, 300, personagemSelecionado);
+    this.enemies = [
+      new Enemy(this, 1900, 1000),
+      new Enemy(this, 1800, 1000),
+      new Enemy(this, 1600, 1000)
+    ];
+
+    this.player.vidas = 3;
+    this.player.invulneravel = false;
+
+    this.matter.world.on('collisionstart', (event) => {
+      event.pairs.forEach(({ bodyA, bodyB }) => {
+        const tagA = bodyA.gameObject?.getData?.('tag');
+        const tagB = bodyB.gameObject?.getData?.('tag');
+
+        if ([tagA, tagB].includes('player') && [tagA, tagB].includes('package')) {
+          this.package.destroy();
+          this.spawnPortal();
+        }
+
+        if ([tagA, tagB].includes('player') && [tagA, tagB].includes('portal')) {
+          this.player.setVelocity(0);
+          this.player.body.isStatic = true;
+          this.showLevelCompleteModal();
+        }
+
+        if ([tagA, tagB].includes('player') && [tagA, tagB].includes('enemy')) {
+          this.perderVida();
+        }
+      });
+    });
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -166,6 +197,60 @@ export default class DinoScene extends Phaser.Scene {
 
     this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
   }
+  showGameOverModal() {
+  const hudDepth = 9000;
+    this.modalBackground = this.add.rectangle(
+      this.cameras.main.worldView.x + this.cameras.main.width / 2,
+      this.cameras.main.worldView.y + this.cameras.main.height / 2,
+      this.cameras.main.width,
+      this.cameras.main.height,
+      0x000000,
+      0.6
+    ).setScrollFactor(0).setDepth(hudDepth-1);
+
+   this.modalContainer = this.add.container(
+      this.cameras.main.midPoint.x,
+      this.cameras.main.midPoint.y,
+      [panel, title, btnNext, btnRestart, btnMenu]
+    ).setScrollFactor(0).setDepth(hudDepth);
+
+
+    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
+    const title = this.add.text(0, -70, 'Fase Completa!', {
+      fontSize: '24px',
+      color: '#000',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+  const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    btnRestart.on('pointerdown', () => {
+      this.destroyModal();
+      this.music.stop();
+      this.scene.restart();
+    });
+
+    const btnMenu = this.add.text(0, 80, 'Menu Principal', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+
+    btnMenu.on('pointerdown', () => {
+      this.destroyModal();
+      this.music.stop();
+      this.scene.start('MenuScene');
+    });
+
+    this.modalContainer.add([panel, title, btnRestart, btnMenu]);
+  }
+
 
   destroyModal() {
   this.modalBackground?.destroy();
@@ -174,11 +259,23 @@ export default class DinoScene extends Phaser.Scene {
 
 
   perderVida() {
-    if (this.vidas > 0) {
-      this.vidas--;
-      this.coracoes[this.vidas].setTexture('heart_empty');
-    }
+  if (this.player.invulneravel) return;
+
+  this.player.vidas--;
+  this.hud.atualizarVidas(this.player.vidas);
+
+  if (this.player.vidas <= 0) {
+    this.showGameOverModal();
+  } else {
+    this.player.invulneravel = true;
+    this.player.setTint(0xff0000);
+    this.time.delayedCall(1000, () => {
+      this.player.clearTint();
+      this.player.invulneravel = false;
+    });
   }
+}
+
 
   spawnPortal() {
     const x = 180;
@@ -202,23 +299,38 @@ export default class DinoScene extends Phaser.Scene {
   }
 
   update() {
-    this.player.updateMovement(this.cursors);
+    if (this.physicsPaused) return;
 
-    if (this.portalMain) {
-      this.portalMain.rotation += 0.02;
+    this.player?.updateMovement?.(this.cursors);
+
+   if (this.enemies && this.player) {
+  const speed = 2.5;
+  this.enemies.forEach(enemy => {
+    const { x: ex, y: ey } = enemy.body.position;
+    const { x: px, y: py } = this.player.body.position;
+    const dx = px - ex;
+    const dy = py - ey;
+    const length = Math.hypot(dx, dy);
+
+    if (length > 0) {
+      enemy.setVelocity((dx / length) * speed, (dy / length) * speed);
     }
-    if (this.portalRings) {
-      this.portalRings.forEach(ringObj => {
-        if (ringObj.growing) {
-          ringObj.scale += 0.01;
-          if (ringObj.scale >= 1.0) ringObj.growing = false;
-        } else {
-          ringObj.scale -= 0.01;
-          if (ringObj.scale <= 1) ringObj.growing = true;
-        }
-        ringObj.sprite.setScale(ringObj.scale);
-      });
-    }
+  });
+}
+
+
+    this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
+
+    this.portalRings.forEach(ring => {
+      if (ring.growing) {
+        ring.scale += 0.01;
+        if (ring.scale >= 1.0) ring.growing = false;
+      } else {
+        ring.scale -= 0.01;
+        if (ring.scale <= 1) ring.growing = true;
+      }
+      ring.sprite.setScale(ring.scale);
+    });
   }
 
   shutdown() {

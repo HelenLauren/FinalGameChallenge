@@ -12,7 +12,26 @@ export default class Player extends Phaser.Physics.Matter.Sprite {
     this.personagem = texture;
     this.lastDirection = 'front';
 
+    this.vidas = 3;
+    this.invulneravel = false;
+
     this.initAnimations(scene, texture);
+  }
+
+  perderVida() {
+    if (this.invulneravel) return;
+
+    this.vidas--;
+    this.invulneravel = true;
+
+    this.scene.hud.atualizarVidas(this.vidas);
+     this.scene.time.delayedCall(1500, () => {
+      this.invulneravel = false;
+    });
+
+    if (this.vidas <= 0) {
+      this.scene.scene.restart();
+    }
   }
 
   initAnimations(scene, personagemSelecionado) {

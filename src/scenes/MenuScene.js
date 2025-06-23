@@ -253,32 +253,32 @@ export default class MenuScene extends Phaser.Scene {
     const bg = this.add.rectangle(0, 0, 760, 400, 0x3b2f2f, 0.8);
     const title = this.add.text(0, -170, 'Sobre o jogo', {
       fontSize: '20px',
-      fontFamily:'"Press Start 2P"',
+      fontFamily: '"Press Start 2P"',
       color: '#81d3fc',
       fontStyle: 'bold',
       stroke: '#000',
       strokeThickness: 2
     }).setOrigin(0.5);
 
-    const texto = `
-      O nome Vertere vem do latim “transformar”, “mudar”.
-      Neste jogo, o desafio é coletar o pacote perdido e levá-lo até o portal para completar a fase. Cada cenário traz obstáculos únicos que testam a habilidade e estratégia do jogador.
+    const texto = `O nome Vertere vem do latim “transformar”, “mudar”.
+  Neste jogo, o desafio é coletar o pacote perdido e levá-lo até o portal para completar a fase.
 
-      Desenvolvido por:
+  Desenvolvido por:
 
-      -Helen Lauren
-      -Helena Picinin
-      -Raissa Queiroz`;
+  -Helen Lauren
+  -Helena Picinin
+  -Raissa Queiroz`;
 
-    const text = this.add.text(0, -50, texto, {
+    const text = this.add.text(0, -130, texto, {
       fontSize: '15px',
-      fontFamily:'"Press Start 2P"',
+      fontFamily: '"Press Start 2P"',
       color: '#ffffff',
-      align: 'left',
+      align: 'center',
       stroke: '#000',
       strokeThickness: 2,
-       wordWrap: { width: 700 }
+      wordWrap: { width: 700 }
     }).setOrigin(0.5, 0);
+
     const btnVoltar = this.createMenuButton('Voltar', 150, () => {
       this.showMenu();
     });
@@ -301,12 +301,12 @@ export default class MenuScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     const instrucoes = `
-      - Use as setas para movimentar o jogador.
-      - Pegue o pacote para desbloquear o portal
-      - Vá até o portal para completar a fase.
-      - Evite os inimigos e obstáculos.
-      - Você tem 3 vidas por fase.
-      - Divirta-se!
+  - Use as setas para movimentar o jogador.
+  - Pegue o pacote para desbloquear o portal
+  - Vá até o portal para completar a fase.
+  - Evite os inimigos e obstáculos.
+  - Você tem 3 vidas por fase.
+  - Divirta-se!
     `;
 
     const text = this.add.text(0, -60, instrucoes, {
