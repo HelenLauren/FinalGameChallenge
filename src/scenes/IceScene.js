@@ -36,7 +36,7 @@ export default class IceScene extends Phaser.Scene {
   }
 
   create() {
-    this.music = this.sound.add('iceMusic', { loop: true, volume: 0.4 });
+    this.music = this.sound.add('iceMusic', { loop: true, volume: 0.2 });
     this.music.play();
 
     const personagemSelecionado = localStorage.getItem('personagemSelecionado');

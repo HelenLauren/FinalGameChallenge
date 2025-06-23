@@ -141,132 +141,73 @@ export default class SeaScene extends Phaser.Scene {
   }
 }
   showLevelCompleteModal() {
-      const hudDepth = 9000;
-      this.modalBackground = this.add.rectangle(
-        this.cameras.main.worldView.x + this.cameras.main.width / 2,
-        this.cameras.main.worldView.y + this.cameras.main.height / 2,
-        this.cameras.main.width,
-        this.cameras.main.height,
-        0x000000,
-        0.6
-      ).setScrollFactor(0).setDepth(hudDepth-1);
+    const hudDepth = 9000;
+    this.modalBackground = this.add.rectangle(
+      this.cameras.main.worldView.x + this.cameras.main.width / 2,
+      this.cameras.main.worldView.y + this.cameras.main.height / 2,
+      this.cameras.main.width,
+      this.cameras.main.height,
+      0x000000,
+      0.6
+    ).setScrollFactor(0).setDepth(hudDepth-1);
 
-      this.modalContainer = this.add.container(
-        this.cameras.main.worldView.x + this.cameras.main.width / 2,
-        this.cameras.main.worldView.y + this.cameras.main.height / 2
-      ).setScrollFactor(0).setDepth(hudDepth);
+    this.modalContainer = this.add.container(
+      this.cameras.main.worldView.x + this.cameras.main.width / 2,
+      this.cameras.main.worldView.y + this.cameras.main.height / 2
+    ).setScrollFactor(0).setDepth(hudDepth);
 
-      const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
-      const title = this.add.text(0, -70, 'Fase Completa!', {
-        fontSize: '24px',
-        color: '#000',
-        fontStyle: 'bold',
-      }).setOrigin(0.5);
+    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
+    const title = this.add.text(0, -70, 'Fase Completa!', {
+      fontSize: '24px',
+      color: '#000',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
 
-      const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-      progresso[4] = true;
-      localStorage.setItem('progressoFases', JSON.stringify(progresso));
+    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
+    progresso[4] = true;
+    localStorage.setItem('progressoFases', JSON.stringify(progresso));
 
-      const btnNext = this.add.text(0, -20, 'Próxima Fase', {
-        fontSize: '20px',
-        color: '#0077ff',
-        backgroundColor: '#cce5ff',
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const btnNext = this.add.text(0, -20, 'Próxima Fase', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-      btnNext.on('pointerdown', () => {
-        this.destroyModal();
-        this.music.stop();
-        this.scene.start('MedievalScene'); //prox fase -----------------
-      });
+    btnNext.on('pointerdown', () => {
+      this.destroyModal();
+      this.music.stop();
+      this.scene.start('MedievalScene');
+    });
 
-      const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
-        fontSize: '20px',
-        color: '#0077ff',
-        backgroundColor: '#cce5ff',
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-      btnRestart.on('pointerdown', () => {
-        this.destroyModal();
-        this.music.stop();
-        this.scene.restart();
-      });
+    btnRestart.on('pointerdown', () => {
+      this.destroyModal();
+      this.music.stop();
+      this.scene.restart();
+    });
 
-      const btnMenu = this.add.text(0, 80, 'Menu Principal', {
-        fontSize: '20px',
-        color: '#0077ff',
-        backgroundColor: '#cce5ff',
-        padding: { x: 10, y: 5 },
-      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    const btnMenu = this.add.text(0, 80, 'Menu Principal', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setOrigin(0.5).setInteractive({ useHandCursor: true });
 
-      btnMenu.on('pointerdown', () => {
-        this.destroyModal();
-        this.music.stop();
-        this.scene.start('MenuScene');
-      });
+    btnMenu.on('pointerdown', () => {
+      this.destroyModal();
+      this.music.stop();
+      this.scene.start('MenuScene');
+    });
 
-      this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
+    this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
   }
-  showGameOverModal() {
-  const hudDepth = 9000;
-  const cam = this.cameras.main;
-
-  this.modalBackground = this.add.rectangle(
-    cam.midPoint.x,
-    cam.midPoint.y,
-    cam.width,
-    cam.height,
-    0x000000,
-    0.6
-  ).setScrollFactor(0).setDepth(hudDepth - 1);
-
-  const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1)
-    .setStrokeStyle(2, 0x000000);
-
-  const title = this.add.text(0, -70, 'Você Morreu!', {
-    fontSize: '24px',
-    color: '#000000',
-    fontStyle: 'bold',
-  }).setOrigin(0.5);
-
-  const btnRestart = this.add.text(0, -10, 'Reiniciar Fase', {
-    fontSize: '20px',
-    color: '#0077ff',
-    backgroundColor: '#cce5ff',
-    padding: { x: 10, y: 5 },
-  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-  btnRestart.on('pointerdown', () => {
-    this.destroyModal();
-    this.music.stop();
-    this.scene.restart();
-  });
-
-  const btnMenu = this.add.text(0, 50, 'Menu Principal', {
-    fontSize: '20px',
-    color: '#0077ff',
-    backgroundColor: '#cce5ff',
-    padding: { x: 10, y: 5 },
-  }).setOrigin(0.5).setInteractive({ useHandCursor: true });
-
-  btnMenu.on('pointerdown', () => {
-    this.destroyModal();
-    this.music.stop();
-    this.scene.start('MenuScene');
-  });
-
-  this.modalContainer = this.add.container(
-    cam.midPoint.x,
-    cam.midPoint.y,
-    [panel, title, btnRestart, btnMenu]
-  ).setScrollFactor(0).setDepth(hudDepth);
-
-  // Parar o jogador e pausar o jogo
-  this.player.setVelocity(0);
-  this.player.body.isStatic = true;
-  this.physicsPaused = true;
-}
 
 
   destroyModal() {
@@ -299,7 +240,7 @@ export default class SeaScene extends Phaser.Scene {
   update() {
     this.player?.updateMovement?.(this.cursors);
 
-    if (this.enemies && this.player) {
+   if (this.enemies && this.player) {
   const speed = 2.5;
   this.enemies.forEach(enemy => {
     const { x: ex, y: ey } = enemy.body.position;
@@ -313,6 +254,7 @@ export default class SeaScene extends Phaser.Scene {
     }
   });
 }
+
 
     this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
 

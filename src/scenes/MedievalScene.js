@@ -80,6 +80,7 @@ export default class MedievalScene extends Phaser.Scene {
       new Enemy(this, 1800, 1000),
       new Enemy(this, 1900, 1000)
     ];
+
     this.player.vidas = 3;
     this.player.invulneravel = false;
 
@@ -102,39 +103,22 @@ export default class MedievalScene extends Phaser.Scene {
         if ([tagA, tagB].includes('player') && [tagA, tagB].includes('enemy')) {
           this.perderVida();
         }
-
-        event.pairs.forEach((pair) => {
-        const bodyA = pair.bodyA;
-        const bodyB = pair.bodyB;
-
-        const tagA = bodyA.gameObject?.getData?.('tag');
-        const tagB = bodyB.gameObject?.getData?.('tag');
-
-        if ([tagA, tagB].includes('player') && [tagA, tagB].includes('package')) {
-          this.package.destroy();
-          this.spawnPortal();
-        }
-
-        if ([tagA, tagB].includes('player') && [tagA, tagB].includes('portal')) {
-          this.player.setVelocity(0);
-          this.player.body.isStatic = true;
-          this.showLevelCompleteModal();
-        }
       });
     });
+
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.package = this.matter.add.image(2500, 1050, 'package', null, { isStatic: true });
+    this.package = this.matter.add.image(2200, 200, 'package', null, { isStatic: true });
     this.package.setData('tag', 'package');
 
     this.portalMain = null;
     this.portalRings = [];
     this.portalRays = [];
 
-    
+    this.matter.world.on('collisionstart', (event) => {
       event.pairs.forEach((pair) => {
         const bodyA = pair.bodyA;
         const bodyB = pair.bodyB;
@@ -341,7 +325,7 @@ export default class MedievalScene extends Phaser.Scene {
     this.player.updateMovement(this.cursors);
 
     if (this.enemies && this.player) {
-  const speed = 2.5;
+  const speed = 3.5;
   this.enemies.forEach(enemy => {
     const { x: ex, y: ey } = enemy.body.position;
     const { x: px, y: py } = this.player.body.position;
