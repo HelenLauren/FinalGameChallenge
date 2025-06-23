@@ -107,6 +107,7 @@ export default class FinalScene extends Phaser.Scene {
   }
 
   showLevelCompleteModal() {
+    const hudDepth = 9000;
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2,
@@ -114,36 +115,31 @@ export default class FinalScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth-1);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
-    const title = this.add.text(0, -70, 'Fase Completa!', {
+    const panel = this.add.rectangle(0, 0, 320, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
+
+    const title = this.add.text(0, -60, 'Jogo Concluído!', {
       fontSize: '24px',
       color: '#000',
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
+    const message = this.add.text(0, -20, 'Parabéns por finalizar a jornada!', {
+      fontSize: '18px',
+      color: '#333',
+      wordWrap: { width: 280, useAdvancedWrap: true },
+      align: 'center'
+    }).setOrigin(0.5);
+
     const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
     progresso[2] = true;
     localStorage.setItem('progressoFases', JSON.stringify(progresso));
-
-    const btnNext = this.add.text(0, -20, 'Próxima Fase', {
-      fontSize: '20px',
-      color: '#0077ff',
-      backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive();
-
-    btnNext.on('pointerdown', () => {
-      this.destroyModal();
-      this.music.stop();
-      this.scene.start('IceScene');
-    });
 
     const btnRestart = this.add.text(0, 30, 'Reiniciar Fase', {
       fontSize: '20px',
@@ -171,7 +167,7 @@ export default class FinalScene extends Phaser.Scene {
       this.scene.start('MenuScene');
     });
 
-    this.modalContainer.add([panel, title, btnNext, btnRestart, btnMenu]);
+    this.modalContainer.add([panel, title, message, btnRestart, btnMenu]);
   }
 
   destroyModal() {

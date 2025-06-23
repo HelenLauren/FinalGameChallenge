@@ -99,6 +99,7 @@ export default class DinoScene extends Phaser.Scene {
   }
 
   showLevelCompleteModal() {
+    const hudDepth = 9000;
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2,
@@ -106,16 +107,14 @@ export default class DinoScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth-1);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth);
 
-    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1);
-    panel.setStrokeStyle(2, 0x000000);
-
+    const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', {
       fontSize: '24px',
       color: '#000',
@@ -169,9 +168,10 @@ export default class DinoScene extends Phaser.Scene {
   }
 
   destroyModal() {
-    if (this.modalBackground) this.modalBackground.destroy();
-    if (this.modalContainer) this.modalContainer.destroy();
-  }
+  this.modalBackground?.destroy();
+  this.modalContainer?.destroy();
+}
+
 
   perderVida() {
     if (this.vidas > 0) {

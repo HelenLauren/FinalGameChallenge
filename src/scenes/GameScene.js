@@ -5,12 +5,12 @@ import GameSpawner from '../ambientacao/GameSpawner.js';
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
-
     this.tileSize = 6;
     this.cols = 512;
     this.rows = 224;
     this.worldWidth = this.cols * this.tileSize;
     this.worldHeight = this.rows * this.tileSize;
+    this.tutorialStep = 0;
   }
 
   preload() {
@@ -46,7 +46,6 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('medievalHouse7', 'assets/images/medieval/medievalHouse7.png');
     this.load.image('medievalHouse8', 'assets/images/medieval/medievalHouse8.png');
     this.load.image('medievalHouse9', 'assets/images/medieval/medievalHouse9.png');
-  
   }
 
   create() {
@@ -67,14 +66,13 @@ export default class GameScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-
+    this.hud = new Hud(this, personagemSelecionado);
     const gameSpawner = new GameSpawner(this);
     gameSpawner.spawnTrees?.();
     gameSpawner.spawnBush?.();
     gameSpawner.spawnHouses?.();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
-    this.hud = new Hud(this, personagemSelecionado);
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -95,6 +93,10 @@ export default class GameScene extends Phaser.Scene {
         if ([tagA, tagB].includes('player') && [tagA, tagB].includes('package')) {
           this.package.destroy();
           this.spawnPortal();
+          if (this.tutorialStep === 1) {
+            this.showTutorialAfterPackageModal();
+            this.tutorialStep = 2;
+          }
         }
 
         if ([tagA, tagB].includes('player') && [tagA, tagB].includes('portal')) {
@@ -104,9 +106,12 @@ export default class GameScene extends Phaser.Scene {
         }
       });
     });
+
+    this.showTutorialStartModal();
   }
 
-  showLevelCompleteModal() {
+  showTutorialStartModal() {
+    const hudDepth = 9000;
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2,
@@ -114,12 +119,93 @@ export default class GameScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth - 1);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth);
+
+    const panel = this.add.rectangle(0, 0, 400, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
+    const text = this.add.text(0, -40,
+      'Você acaba de acordar em um lugar estranho...\nEncontre o pacote perdido!',
+      { fontSize: '18px', color: '#000', align: 'center', wordWrap: { width: 360 } }
+    ).setOrigin(0.5);
+
+    const btn = this.add.text(0, 50, 'Entendido', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setScrollFactor(0).setOrigin(0.5).setInteractive();
+
+    btn.on('pointerdown', () => {
+      this.destroyModal();
+      this.tutorialStep = 1;
+    });
+
+    this.modalContainer.add([panel, text, btn]);
+  }
+
+  showTutorialAfterPackageModal() {
+    const hudDepth = 9000;
+    const centerX = this.scale.width / 2;
+    const centerY = this.scale.height / 2;
+
+    this.modalBackground = this.add.rectangle(
+      centerX, centerY,
+      this.scale.width,
+      this.scale.height,
+      0x000000,
+      0.6
+    ).setScrollFactor(0).setDepth(hudDepth - 1);
+
+    this.modalContainer = this.add.container(centerX, centerY)
+      .setScrollFactor(0)
+      .setDepth(hudDepth);
+
+    const panel = this.add.rectangle(0, 0, 400, 200, 0xffffff, 1)
+      .setStrokeStyle(2, 0x000000);
+    const text = this.add.text(0, -40,
+      'Ótimo!\nAgora volte ao portal que apareceu onde você acordou.',
+      {
+        fontSize: '18px',
+        color: '#000',
+        align: 'center',
+        wordWrap: { width: 360 }
+      }
+    ).setScrollFactor(0).setOrigin(0.5);
+
+    const btn = this.add.text(0, 50, 'OK!', {
+      fontSize: '20px',
+      color: '#0077ff',
+      backgroundColor: '#cce5ff',
+      padding: { x: 10, y: 5 },
+    }).setScrollFactor(0).setOrigin(0.5).setInteractive();
+
+    btn.on('pointerdown', () => {
+      this.destroyModal();
+    });
+
+    this.modalContainer.add([panel, text, btn]);
+  }
+
+
+  showLevelCompleteModal() {
+    const hudDepth = 9000;
+    this.modalBackground = this.add.rectangle(
+      this.cameras.main.worldView.x + this.cameras.main.width / 2,
+      this.cameras.main.worldView.y + this.cameras.main.height / 2,
+      this.cameras.main.width,
+      this.cameras.main.height,
+      0x000000,
+      0.6
+    ).setScrollFactor(0).setDepth(hudDepth - 1);
+
+    this.modalContainer = this.add.container(
+      this.cameras.main.worldView.x + this.cameras.main.width / 2,
+      this.cameras.main.worldView.y + this.cameras.main.height / 2
+    ).setScrollFactor(0).setDepth(hudDepth);
 
     const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', {
@@ -128,17 +214,11 @@ export default class GameScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    const progresso = JSON.parse(localStorage.getItem('progressoFases')) || {};
-    progresso[2] = true;
-    localStorage.setItem('progressoFases', JSON.stringify(progresso));
-
-    const btnNext = this.add.text(0, -20, 'Próxima Fase', {
+    const btnNext = this.add.text(0, -20, 'Próxima Fase', { 
       fontSize: '20px',
       color: '#0077ff',
       backgroundColor: '#cce5ff',
-      padding: { x: 10, y: 5 },
-    }).setOrigin(0.5).setInteractive();
-
+      padding: { x: 10, y: 5 },}).setOrigin(0.5).setInteractive();
     btnNext.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
@@ -151,7 +231,6 @@ export default class GameScene extends Phaser.Scene {
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
     }).setOrigin(0.5).setInteractive();
-
     btnRestart.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
@@ -164,7 +243,6 @@ export default class GameScene extends Phaser.Scene {
       backgroundColor: '#cce5ff',
       padding: { x: 10, y: 5 },
     }).setOrigin(0.5).setInteractive();
-
     btnMenu.on('pointerdown', () => {
       this.destroyModal();
       this.music.stop();
@@ -203,24 +281,16 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     this.player?.updateMovement?.(this.cursors);
-
     this.portalMain?.setRotation(this.portalMain.rotation + 0.02);
-
     this.portalRings.forEach(ring => {
-      if (ring.growing) {
-        ring.scale += 0.01;
-        if (ring.scale >= 1.0) ring.growing = false;
-      } else {
-        ring.scale -= 0.01;
-        if (ring.scale <= 1) ring.growing = true;
-      }
+      ring.scale += ring.growing ? 0.01 : -0.01;
+      if (ring.scale >= 1.0) ring.growing = false;
+      if (ring.scale <= 1) ring.growing = true;
       ring.sprite.setScale(ring.scale);
     });
   }
 
   shutdown() {
-    if (this.music?.isPlaying) {
-      this.music.stop();
-    }
+    if (this.music?.isPlaying) this.music.stop();
   }
 }

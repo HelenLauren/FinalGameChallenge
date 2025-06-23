@@ -46,6 +46,7 @@ export default class GameSpawner {
     const tree = this.scene.add.image(x, y, key);
     tree.setScale(scale);
     tree.setOrigin(0.5, 1);
+    tree.setDepth(5000);
 
     const trunkWidth = tree.width * scale * 0.1; 
     const trunkHeight = tree.height * scale * 0.1; 

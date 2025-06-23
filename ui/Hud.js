@@ -9,7 +9,7 @@ export default class Hud {
     const heartHeight = 20;
     const heartSpacing = 6;
     const screenWidth = scene.cameras.main.width;
-    const hudDepth = 9000;
+    const HUD_DEPTH = 9000;
 
     for (let i = 0; i < vidas; i++) {
       const x = margin + i * (heartWidth + heartSpacing);
@@ -19,7 +19,7 @@ export default class Hud {
         .setScrollFactor(0)
         .setDisplaySize(heartWidth, heartHeight)
         .setOrigin(0, 0)
-        .setDepth(hudDepth);
+        .setDepth(HUD_DEPTH);
 
       this.coracoes.push(coracao);
     }
@@ -32,7 +32,7 @@ export default class Hud {
       fontFamily: '"Press Start 2P"',
       stroke: '#3b2f2f',
       strokeThickness: 2
-    }).setScrollFactor(0).setDepth(hudDepth);
+    }).setScrollFactor(0).setDepth(HUD_DEPTH);
 
     this.btnMenu = scene.add.text(screenWidth - margin, margin + 2, 'Menu', {
       fontSize: '16px',
@@ -45,7 +45,7 @@ export default class Hud {
     }).setScrollFactor(0)
       .setOrigin(1, 0)
       .setInteractive({ useHandCursor: true })
-      .setDepth(hudDepth);
+      .setDepth(HUD_DEPTH + 1);
 
     this.btnMenu.on('pointerdown', () => {
       this.abrirMenuModal();
@@ -65,8 +65,10 @@ export default class Hud {
     const centerX = width / 2;
     const centerY = height / 2;
 
-    const modalBackgroundDepth = 2000;
-    const modalUIdepth = 2001;
+    const HUD_DEPTH = 9000;
+    const MODAL_DEPTH_BACKGROUND = 10000;
+    const MODAL_DEPTH_UI = 10001;
+    const MODAL_DEPTH_BUTTON = 10002;
 
     this.container.setVisible(false);
     this.modalBackground = this.scene.add.rectangle(
@@ -75,11 +77,11 @@ export default class Hud {
       0xa1866f, 0.4
     ).setOrigin(0, 0)
       .setScrollFactor(0)
-      .setDepth(modalBackgroundDepth);
+      .setDepth(MODAL_DEPTH_BACKGROUND);
 
     const panel = this.scene.add.rectangle(0, 0, 360, 240, 0x3b2f2f, 0.8)
       .setStrokeStyle(2, 0x3b2f2f)
-      .setDepth(modalUIdepth)
+      .setDepth(MODAL_DEPTH_UI)
       .setScrollFactor(0);
 
     const title = this.scene.add.text(0, -90, 'Menu de Pausa', {
@@ -90,7 +92,7 @@ export default class Hud {
       stroke: '#3b2f2f',
       strokeThickness: 2
     }).setOrigin(0.5)
-      .setDepth(modalUIdepth)
+      .setDepth(MODAL_DEPTH_UI)
       .setScrollFactor(0);
 
     const btnRestart = this.createMenuButton('Reiniciar Fase', -30, () => {
@@ -98,12 +100,14 @@ export default class Hud {
       this.scene.music?.stop?.();
       this.scene.scene.restart();
     });
+    btnRestart.setDepth(MODAL_DEPTH_BUTTON);
 
     const btnMenu = this.createMenuButton('Voltar ao Menu', 30, () => {
       this.fecharMenuModal();
       this.scene.music?.stop?.();
       this.scene.scene.start('MenuScene');
     });
+    btnMenu.setDepth(MODAL_DEPTH_BUTTON);
 
     const btnClose = this.scene.add.text(160, -110, 'X', {
       fontSize: '12px',
@@ -116,7 +120,7 @@ export default class Hud {
       strokeThickness: 2,
     }).setOrigin(0.5)
       .setInteractive({ useHandCursor: true })
-      .setDepth(modalUIdepth)
+      .setDepth(MODAL_DEPTH_BUTTON)
       .setScrollFactor(0);
 
     btnClose.on('pointerdown', () => this.fecharMenuModal());
@@ -130,8 +134,9 @@ export default class Hud {
     this.modalContainer = this.scene.add.container(centerX, centerY, [
       panel, title, btnRestart, btnMenu, btnClose
     ]).setScrollFactor(0)
-      .setDepth(modalUIdepth);
+      .setDepth(MODAL_DEPTH_UI);
   }
+
 
   fecharMenuModal() {
     this.modalBackground?.destroy();

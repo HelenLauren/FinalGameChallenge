@@ -53,12 +53,11 @@ export default class SeaScene extends Phaser.Scene {
         graphics.fillRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
       }
     }
-
+    this.hud = new Hud(this, personagemSelecionado);
     const seaSpawner = new SeaSpawner(this);
     seaSpawner.spawnAll?.();
 
     this.player = new Player(this, 500, 400, personagemSelecionado);
-    this.hud = new Hud(this, personagemSelecionado);
 
     this.cameras.main.startFollow(this.player);
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
@@ -91,6 +90,7 @@ export default class SeaScene extends Phaser.Scene {
   }
 
   showLevelCompleteModal() {
+   const hudDepth = 9000;
     this.modalBackground = this.add.rectangle(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2,
@@ -98,12 +98,12 @@ export default class SeaScene extends Phaser.Scene {
       this.cameras.main.height,
       0x000000,
       0.6
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth-1);
 
     this.modalContainer = this.add.container(
       this.cameras.main.worldView.x + this.cameras.main.width / 2,
       this.cameras.main.worldView.y + this.cameras.main.height / 2
-    ).setScrollFactor(0);
+    ).setScrollFactor(0).setDepth(hudDepth);
 
     const panel = this.add.rectangle(0, 0, 300, 200, 0xffffff, 1).setStrokeStyle(2, 0x000000);
     const title = this.add.text(0, -70, 'Fase Completa!', { fontSize: '24px', color: '#000' }).setOrigin(0.5);
