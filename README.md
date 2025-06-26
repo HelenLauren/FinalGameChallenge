@@ -21,7 +21,7 @@ Projeto final da disciplina **HTML5 Canvas e Games** – 3º período
 - **Áudios: por Scott Cawthon e John Williams.**
 
 ## Gameplay
-
+https://www.canva.com/design/DAGrTtyoEwA/_mrI3iA4VyEEo2_tsxQCGQ/watch?utm_content=DAGrTtyoEwA&utm_campaign=share_your_design&utm_medium=link2&utm_source=shareyourdesignpanel
 
 ## Como rodar o projeto?
 - **Opção 1: instalar LiveServer no VS Code, clonar repositório e clicar "Go Live" no arquivo index.html**
